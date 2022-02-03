@@ -16,7 +16,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
           
         let window = UIWindow(windowScene: windowScene)
-        window.tintColor = .blue //GbColor.blue.uiColor
+        window.tintColor = .label
         
         window.rootViewController = UINavigationController(rootViewController: ProjectsViewController())
         window.makeKeyAndVisible()

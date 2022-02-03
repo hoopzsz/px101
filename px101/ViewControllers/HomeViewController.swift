@@ -145,7 +145,7 @@ enum Px101Logo: CaseIterable {
     var bitmap: Bitmap {
         switch self {
         case .s:
-            return Bitmap(width: 12, pattern: [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
+            return Bitmap(width: 12, binary: [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
                                                0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
                                                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                                                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -162,7 +162,7 @@ enum Px101Logo: CaseIterable {
                                                0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
                                                0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0])
         case .p:
-            return Bitmap(width: 12, pattern: [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
+            return Bitmap(width: 12, binary: [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
                                                0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
                                                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                                                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -181,7 +181,7 @@ enum Px101Logo: CaseIterable {
                                                1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
                                                ])
         case .x:
-            return Bitmap(width: 12, pattern: [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1,
+            return Bitmap(width: 12, binary: [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1,
                                                1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1,
                                                1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1,
                                                1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1,
@@ -198,7 +198,7 @@ enum Px101Logo: CaseIterable {
                                                1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1,
                                                1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1])
         case .one:
-            return Bitmap(width: 7, pattern: [1, 1, 1, 1, 1, 1, 1,
+            return Bitmap(width: 7, binary: [1, 1, 1, 1, 1, 1, 1,
                                               1, 1, 1, 1, 1, 1, 1,
                                               1, 1, 1, 1, 1, 1, 1,
                                               1, 1, 1, 1, 1, 1, 1,
@@ -219,7 +219,7 @@ enum Px101Logo: CaseIterable {
                                               0, 0, 0, 1, 1, 1, 1,
                                               0, 0, 0, 1, 1, 1, 1])
         case .zero:
-            return Bitmap(width: 12, pattern: [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
+            return Bitmap(width: 12, binary: [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
                                                0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
                                                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                                                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -236,7 +236,7 @@ enum Px101Logo: CaseIterable {
                                                0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
                                                0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0])
         case .dash:
-            return Bitmap(width: 6, pattern: [0, 0, 0, 0, 0, 0,
+            return Bitmap(width: 6, binary: [0, 0, 0, 0, 0, 0,
                                               0, 0, 0, 0, 0, 0,
                                               0, 0, 0, 0, 0, 0,
                                               0, 0, 0, 0, 0, 0,
@@ -253,10 +253,10 @@ enum Px101Logo: CaseIterable {
                                               0, 0, 0, 0, 0, 0,
                                               0, 0, 0, 0, 0, 0])
         case .space1:
-            return Bitmap(width: 1, pattern: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+            return Bitmap(width: 1, binary: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
         
         case .space2:
-            return Bitmap(width: 2, pattern: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            return Bitmap(width: 2, binary: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                               0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
         }
     }
@@ -270,189 +270,189 @@ enum TetrisFont: CaseIterable {
     var bitmap: Bitmap {
         switch self {
         case .a:
-            return Bitmap(width: 6, pattern: [0, 1, 1, 1, 1, 0,
+            return Bitmap(width: 6, binary: [0, 1, 1, 1, 1, 0,
                                               1, 0, 0, 1, 1, 1,
                                               1, 0, 0, 1, 1, 1,
                                               1, 1, 1, 1, 1, 1,
                                               1, 0, 0, 1, 1, 1,
                                               1, 0, 0, 1, 1, 1])
         case .b:
-            return Bitmap(width: 6, pattern: [1, 1, 1, 1, 1, 0,
+            return Bitmap(width: 6, binary: [1, 1, 1, 1, 1, 0,
                                               1, 1, 0, 0, 1, 1,
                                               1, 1, 1, 1, 1, 0,
                                               1, 1, 0, 0, 1, 1,
                                               1, 1, 0, 0, 1, 1,
                                               1, 1, 1, 1, 1, 0])
         case .c:
-            return Bitmap(width: 6, pattern: [0, 1, 1, 1, 1, 0,
+            return Bitmap(width: 6, binary: [0, 1, 1, 1, 1, 0,
                                               1, 1, 0, 0, 1, 1,
                                               1, 1, 0, 0, 0, 0,
                                               1, 1, 0, 0, 0, 0,
                                               1, 1, 0, 0, 1, 1,
                                               0, 1, 1, 1, 1, 0])
         case .d:
-            return Bitmap(width: 6, pattern: [1, 1, 1, 1, 1, 0,
+            return Bitmap(width: 6, binary: [1, 1, 1, 1, 1, 0,
                                               1, 0, 0, 1, 1, 1,
                                               1, 0, 0, 1, 1, 1,
                                               1, 0, 0, 1, 1, 1,
                                               1, 0, 0, 1, 1, 1,
                                               1, 1, 1, 1, 1, 0])
         case .e:
-            return Bitmap(width: 6, pattern: [1, 1, 1, 1, 1, 1,
+            return Bitmap(width: 6, binary: [1, 1, 1, 1, 1, 1,
                                               1, 1, 0, 0, 0, 0,
                                               1, 1, 1, 1, 1, 0,
                                               1, 1, 0, 0, 0, 0,
                                               1, 1, 0, 0, 0, 0,
                                               1, 1, 1, 1, 1, 1])
         case .f:
-            return Bitmap(width: 6, pattern: [1, 1, 1, 1, 1, 1,
+            return Bitmap(width: 6, binary: [1, 1, 1, 1, 1, 1,
                                               1, 1, 0, 0, 0, 0,
                                               1, 1, 0, 0, 0, 0,
                                               1, 1, 1, 1, 1, 0,
                                               1, 1, 0, 0, 0, 0,
                                               1, 1, 0, 0, 0, 0])
         case .g:
-            return Bitmap(width: 6, pattern: [0, 1, 1, 1, 1, 0,
+            return Bitmap(width: 6, binary: [0, 1, 1, 1, 1, 0,
                                               1, 1, 0, 0, 1, 1,
                                               1, 1, 0, 0, 0, 0,
                                               1, 1, 0, 1, 1, 1,
                                               1, 1, 0, 0, 1, 1,
                                               0, 1, 1, 1, 1, 1])
         case .h:
-            return Bitmap(width: 6, pattern: [1, 0, 0, 0, 1, 1,
+            return Bitmap(width: 6, binary: [1, 0, 0, 0, 1, 1,
                                               1, 0, 0, 0, 1, 1,
                                               1, 1, 1, 1, 1, 1,
                                               1, 0, 0, 0, 1, 1,
                                               1, 0, 0, 0, 1, 1,
                                               1, 0, 0, 0, 1, 1])
         case .i:
-            return Bitmap(width: 6, pattern: [0, 1, 1, 1, 1, 0,
+            return Bitmap(width: 6, binary: [0, 1, 1, 1, 1, 0,
                                               0, 0, 1, 1, 0, 0,
                                               0, 0, 1, 1, 0, 0,
                                               0, 0, 1, 1, 0, 0,
                                               0, 0, 1, 1, 0, 0,
                                               0, 1, 1, 1, 1, 0])
         case .j:
-            return Bitmap(width: 6, pattern: [0, 0, 1, 1, 1, 1,
+            return Bitmap(width: 6, binary: [0, 0, 1, 1, 1, 1,
                                               0, 0, 0, 1, 1, 0,
                                               0, 0, 0, 1, 1, 0,
                                               1, 1, 0, 1, 1, 0,
                                               1, 1, 0, 1, 1, 0,
                                               0, 1, 1, 1, 0, 0])
         case .k:
-            return Bitmap(width: 6, pattern: [1, 1, 0, 0, 1, 1,
+            return Bitmap(width: 6, binary: [1, 1, 0, 0, 1, 1,
                                               1, 1, 0, 1, 1, 0,
                                               1, 1, 1, 0, 0, 0,
                                               1, 1, 1, 0, 0, 0,
                                               1, 1, 0, 1, 1, 0,
                                               1, 1, 0, 0, 1, 1])
         case .l:
-            return Bitmap(width: 6, pattern: [1, 1, 0, 0, 0, 0,
+            return Bitmap(width: 6, binary: [1, 1, 0, 0, 0, 0,
                                               1, 1, 0, 0, 0, 0,
                                               1, 1, 0, 0, 0, 0,
                                               1, 1, 0, 0, 0, 0,
                                               1, 1, 0, 0, 0, 0,
                                               1, 1, 1, 1, 1, 1])
         case .m:
-            return Bitmap(width: 6, pattern: [1, 0, 0, 0, 1, 1,
+            return Bitmap(width: 6, binary: [1, 0, 0, 0, 1, 1,
                                               1, 1, 0, 1, 1, 1,
                                               1, 1, 1, 1, 1, 1,
                                               1, 0, 1, 0, 1, 1,
                                               1, 0, 0, 0, 1, 1,
                                               1, 0, 0, 0, 1, 1])
         case .n:
-            return Bitmap(width: 6, pattern: [1, 0, 0, 0, 1, 1,
+            return Bitmap(width: 6, binary: [1, 0, 0, 0, 1, 1,
                                               1, 1, 0, 0, 1, 1,
                                               1, 1, 1, 0, 1, 1,
                                               1, 0, 1, 1, 1, 1,
                                               1, 0, 0, 1, 1, 1,
                                               1, 0, 0, 0, 1, 1])
         case .o:
-            return Bitmap(width: 6, pattern: [0, 1, 1, 1, 1, 0,
+            return Bitmap(width: 6, binary: [0, 1, 1, 1, 1, 0,
                                               1, 1, 0, 0, 1, 1,
                                               1, 1, 0, 0, 1, 1,
                                               1, 1, 0, 0, 1, 1,
                                               1, 1, 0, 0, 1, 1,
                                               0, 1, 1, 1, 1, 0])
         case .p:
-            return Bitmap(width: 6, pattern: [1, 1, 1, 1, 1, 0,
+            return Bitmap(width: 6, binary: [1, 1, 1, 1, 1, 0,
                                               1, 1, 0, 0, 1, 1,
                                               1, 1, 0, 0, 1, 1,
                                               1, 1, 1, 1, 1, 0,
                                               1, 1, 0, 0, 0, 0,
                                               1, 1, 0, 0, 0, 0])
         case .q:
-            return Bitmap(width: 6, pattern: [0, 1, 1, 1, 1, 0,
+            return Bitmap(width: 6, binary: [0, 1, 1, 1, 1, 0,
                                               1, 1, 0, 0, 0, 1,
                                               1, 1, 0, 0, 0, 1,
                                               1, 1, 0, 1, 0, 1,
                                               1, 1, 0, 0, 1, 0,
                                               0, 1, 1, 1, 0, 1])
         case .r:
-            return Bitmap(width: 6, pattern: [1, 1, 1, 1, 1, 0,
+            return Bitmap(width: 6, binary: [1, 1, 1, 1, 1, 0,
                                               1, 1, 0, 0, 0, 1,
                                               1, 1, 0, 0, 0, 1,
                                               1, 1, 1, 1, 1, 0,
                                               1, 1, 0, 1, 0, 0,
                                               1, 1, 0, 0, 1, 1])
         case .s:
-            return Bitmap(width: 6, pattern: [0, 1, 1, 1, 1, 0,
+            return Bitmap(width: 6, binary: [0, 1, 1, 1, 1, 0,
                                               1, 1, 0, 0, 0, 0,
                                               0, 1, 1, 1, 1, 0,
                                               0, 0, 0, 1, 1, 1,
                                               1, 1, 0, 1, 1, 1,
                                               0, 1, 1, 1, 1, 0])
         case .t:
-            return Bitmap(width: 6, pattern: [1, 1, 1, 1, 1, 1,
+            return Bitmap(width: 6, binary: [1, 1, 1, 1, 1, 1,
                                               0, 0, 1, 1, 0, 0,
                                               0, 0, 1, 1, 0, 0,
                                               0, 0, 1, 1, 0, 0,
                                               0, 0, 1, 1, 0, 0,
                                               0, 0, 1, 1, 0, 0])
         case .u:
-            return Bitmap(width: 6, pattern: [1, 0, 0, 0, 1, 1,
+            return Bitmap(width: 6, binary: [1, 0, 0, 0, 1, 1,
                                               1, 0, 0, 0, 1, 1,
                                               1, 0, 0, 0, 1, 1,
                                               1, 0, 0, 0, 1, 1,
                                               1, 0, 0, 1, 1, 1,
                                               0, 1, 1, 1, 1, 0])
         case .v:
-            return Bitmap(width: 6, pattern: [1, 0, 0, 0, 1, 1,
+            return Bitmap(width: 6, binary: [1, 0, 0, 0, 1, 1,
                                               1, 0, 0, 0, 1, 1,
                                               1, 0, 0, 0, 1, 1,
                                               1, 0, 0, 0, 1, 1,
                                               0, 1, 0, 1, 1, 0,
                                               0, 0, 1, 1, 0, 0])
         case .w:
-            return Bitmap(width: 6, pattern: [1, 0, 0, 0, 1, 1,
+            return Bitmap(width: 6, binary: [1, 0, 0, 0, 1, 1,
                                               1, 0, 0, 0, 1, 1,
                                               1, 0, 1, 0, 1, 1,
                                               1, 1, 1, 1, 1, 1,
                                               1, 1, 0, 1, 1, 1,
                                               1, 0, 0, 0, 1, 1])
         case .x:
-            return Bitmap(width: 6, pattern: [1, 0, 0, 0, 1, 1,
+            return Bitmap(width: 6, binary: [1, 0, 0, 0, 1, 1,
                                               0, 1, 0, 1, 1, 0,
                                               0, 0, 1, 1, 0, 0,
                                               0, 1, 1, 1, 0, 0,
                                               1, 1, 0, 0, 1, 0,
                                               1, 0, 0, 0, 0, 1])
         case .y:
-            return Bitmap(width: 6, pattern: [1, 1, 0, 0, 1, 1,
+            return Bitmap(width: 6, binary: [1, 1, 0, 0, 1, 1,
                                               1, 1, 0, 0, 1, 1,
                                               0, 1, 1, 1, 1, 0,
                                               0, 0, 1, 1, 0, 0,
                                               0, 0, 1, 1, 0, 0,
                                               0, 0, 1, 1, 0, 0])
         case .z:
-            return Bitmap(width: 6, pattern: [1, 1, 1, 1, 1, 1,
+            return Bitmap(width: 6, binary: [1, 1, 1, 1, 1, 1,
                                               0, 0, 0, 1, 1, 1,
                                               0, 0, 1, 1, 1, 0,
                                               0, 1, 1, 1, 0, 0,
                                               1, 1, 1, 0, 0, 0,
                                               1, 1, 1, 1, 1, 1])
         case .space:
-            return Bitmap(width: 2, pattern: [0, 0,
+            return Bitmap(width: 2, binary: [0, 0,
                                               0, 0,
                                               0, 0,
                                               0, 0,
@@ -468,7 +468,7 @@ enum fiveSeven: CaseIterable {
     var bitmap: Bitmap {
         switch self {
         case .a:
-            return Bitmap(width: 5, pattern: [0, 1, 1, 1, 0,
+            return Bitmap(width: 5, binary: [0, 1, 1, 1, 0,
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1,
                                               1, 1, 1, 1, 1,
@@ -476,7 +476,7 @@ enum fiveSeven: CaseIterable {
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1])
         case .b:
-            return Bitmap(width: 5, pattern: [1, 1, 1, 1, 0,
+            return Bitmap(width: 5, binary: [1, 1, 1, 1, 0,
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1,
                                               1, 1, 1, 1, 0,
@@ -484,7 +484,7 @@ enum fiveSeven: CaseIterable {
                                               1, 0, 0, 0, 1,
                                               1, 1, 1, 1, 0])
         case .c:
-            return Bitmap(width: 5, pattern: [0, 1, 1, 1, 0,
+            return Bitmap(width: 5, binary: [0, 1, 1, 1, 0,
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 0,
                                               1, 0, 0, 0, 0,
@@ -492,7 +492,7 @@ enum fiveSeven: CaseIterable {
                                               1, 0, 0, 0, 1,
                                               0, 1, 1, 1, 0])
         case .d:
-            return Bitmap(width: 5, pattern: [1, 1, 1, 1, 0,
+            return Bitmap(width: 5, binary: [1, 1, 1, 1, 0,
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1,
@@ -500,7 +500,7 @@ enum fiveSeven: CaseIterable {
                                               1, 0, 0, 0, 1,
                                               1, 1, 1, 1, 0])
         case .e:
-            return Bitmap(width: 5, pattern: [1, 1, 1, 1, 1,
+            return Bitmap(width: 5, binary: [1, 1, 1, 1, 1,
                                               1, 0, 0, 0, 0,
                                               1, 0, 0, 0, 0,
                                               1, 1, 1, 1, 0,
@@ -508,7 +508,7 @@ enum fiveSeven: CaseIterable {
                                               1, 0, 0, 0, 0,
                                               1, 1, 1, 1, 1])
         case .f:
-            return Bitmap(width: 5, pattern: [1, 1, 1, 1, 1,
+            return Bitmap(width: 5, binary: [1, 1, 1, 1, 1,
                                               1, 0, 0, 0, 0,
                                               1, 0, 0, 0, 0,
                                               1, 1, 1, 1, 0,
@@ -516,7 +516,7 @@ enum fiveSeven: CaseIterable {
                                               1, 0, 0, 0, 0,
                                               1, 0, 0, 0, 0])
         case .g:
-            return Bitmap(width: 5, pattern: [0, 1, 1, 1, 0,
+            return Bitmap(width: 5, binary: [0, 1, 1, 1, 0,
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 0,
                                               1, 0, 0, 0, 0,
@@ -524,7 +524,7 @@ enum fiveSeven: CaseIterable {
                                               1, 0, 0, 0, 1,
                                               0, 1, 1, 1, 0])
         case .h:
-            return Bitmap(width: 5, pattern: [1, 0, 0, 0, 1,
+            return Bitmap(width: 5, binary: [1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1,
                                               1, 1, 1, 1, 1,
@@ -532,7 +532,7 @@ enum fiveSeven: CaseIterable {
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1])
         case .i:
-            return Bitmap(width: 5, pattern: [1, 1, 1, 1, 1,
+            return Bitmap(width: 5, binary: [1, 1, 1, 1, 1,
                                               0, 0, 1, 0, 0,
                                               0, 0, 1, 0, 0,
                                               0, 0, 1, 0, 0,
@@ -540,7 +540,7 @@ enum fiveSeven: CaseIterable {
                                               0, 0, 1, 0, 0,
                                               1, 1, 1, 1, 1])
         case .j:
-            return Bitmap(width: 5, pattern: [0, 0, 0, 0, 1,
+            return Bitmap(width: 5, binary: [0, 0, 0, 0, 1,
                                               0, 0, 0, 0, 1,
                                               0, 0, 0, 0, 1,
                                               0, 0, 0, 0, 1,
@@ -548,7 +548,7 @@ enum fiveSeven: CaseIterable {
                                               1, 0, 0, 0, 1,
                                               0, 1, 1, 1, 0])
         case .k:
-            return Bitmap(width: 5, pattern: [1, 0, 0, 0, 1,
+            return Bitmap(width: 5, binary: [1, 0, 0, 0, 1,
                                               1, 0, 0, 1, 0,
                                               1, 0, 1, 0, 0,
                                               1, 1, 0, 0, 0,
@@ -556,7 +556,7 @@ enum fiveSeven: CaseIterable {
                                               1, 0, 0, 1, 0,
                                               1, 0, 0, 0, 1])
         case .l:
-            return Bitmap(width: 5, pattern: [1, 0, 0, 0, 0,
+            return Bitmap(width: 5, binary: [1, 0, 0, 0, 0,
                                               1, 0, 0, 0, 0,
                                               1, 0, 0, 0, 0,
                                               1, 0, 0, 0, 0,
@@ -564,7 +564,7 @@ enum fiveSeven: CaseIterable {
                                               1, 0, 0, 0, 0,
                                               1, 1, 1, 1, 1])
         case .m:
-            return Bitmap(width: 5, pattern: [1, 0, 0, 0, 1,
+            return Bitmap(width: 5, binary: [1, 0, 0, 0, 1,
                                               1, 1, 0, 1, 1,
                                               1, 0, 1, 0, 1,
                                               1, 0, 0, 0, 1,
@@ -572,7 +572,7 @@ enum fiveSeven: CaseIterable {
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1])
         case .n:
-            return Bitmap(width: 5, pattern: [1, 0, 0, 0, 1,
+            return Bitmap(width: 5, binary: [1, 0, 0, 0, 1,
                                               1, 1, 0, 0, 1,
                                               1, 0, 1, 0, 1,
                                               1, 0, 0, 1, 1,
@@ -580,7 +580,7 @@ enum fiveSeven: CaseIterable {
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1])
         case .o:
-            return Bitmap(width: 5, pattern: [0, 1, 1, 1, 0,
+            return Bitmap(width: 5, binary: [0, 1, 1, 1, 0,
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1,
@@ -588,7 +588,7 @@ enum fiveSeven: CaseIterable {
                                               1, 0, 0, 0, 1,
                                               0, 1, 1, 1, 0])
         case .p:
-            return Bitmap(width: 5, pattern: [1, 1, 1, 1, 0,
+            return Bitmap(width: 5, binary: [1, 1, 1, 1, 0,
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1,
                                               1, 1, 1, 1, 0,
@@ -596,7 +596,7 @@ enum fiveSeven: CaseIterable {
                                               1, 0, 0, 0, 0,
                                               1, 0, 0, 0, 0])
         case .q:
-            return Bitmap(width: 5, pattern: [0, 1, 1, 1, 0,
+            return Bitmap(width: 5, binary: [0, 1, 1, 1, 0,
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1,
@@ -604,7 +604,7 @@ enum fiveSeven: CaseIterable {
                                               1, 0, 0, 1, 0,
                                               0, 1, 1, 0, 1])
         case .r:
-            return Bitmap(width: 5, pattern: [1, 1, 1, 1, 0,
+            return Bitmap(width: 5, binary: [1, 1, 1, 1, 0,
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1,
                                               1, 1, 1, 1, 0,
@@ -612,7 +612,7 @@ enum fiveSeven: CaseIterable {
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1])
         case .s:
-            return Bitmap(width: 5, pattern: [0, 1, 1, 1, 1,
+            return Bitmap(width: 5, binary: [0, 1, 1, 1, 1,
                                               1, 0, 0, 0, 0,
                                               1, 0, 0, 0, 0,
                                               0, 1, 1, 1, 0,
@@ -620,7 +620,7 @@ enum fiveSeven: CaseIterable {
                                               0, 0, 0, 0, 1,
                                               1, 1, 1, 1, 0])
         case .t:
-            return Bitmap(width: 5, pattern: [1, 1, 1, 1, 1,
+            return Bitmap(width: 5, binary: [1, 1, 1, 1, 1,
                                               0, 0, 1, 0, 0,
                                               0, 0, 1, 0, 0,
                                               0, 0, 1, 0, 0,
@@ -628,7 +628,7 @@ enum fiveSeven: CaseIterable {
                                               0, 0, 1, 0, 0,
                                               0, 0, 1, 0, 0])
         case .u:
-            return Bitmap(width: 5, pattern: [1, 0, 0, 0, 1,
+            return Bitmap(width: 5, binary: [1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1,
@@ -636,7 +636,7 @@ enum fiveSeven: CaseIterable {
                                               1, 0, 0, 0, 1,
                                               0, 1, 1, 1, 0])
         case .v:
-            return Bitmap(width: 5, pattern: [1, 0, 0, 0, 1,
+            return Bitmap(width: 5, binary: [1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1,
@@ -644,7 +644,7 @@ enum fiveSeven: CaseIterable {
                                               0, 1, 0, 1, 0,
                                               0, 0, 1, 0, 0])
         case .w:
-            return Bitmap(width: 5, pattern: [1, 0, 0, 0, 1,
+            return Bitmap(width: 5, binary: [1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1,
@@ -652,7 +652,7 @@ enum fiveSeven: CaseIterable {
                                               1, 0, 1, 0, 1,
                                               0, 1, 0, 1, 0])
         case .x:
-            return Bitmap(width: 5, pattern: [1, 0, 0, 0, 1,
+            return Bitmap(width: 5, binary: [1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1,
                                               0, 1, 0, 1, 0,
                                               0, 0, 1, 0, 0,
@@ -660,7 +660,7 @@ enum fiveSeven: CaseIterable {
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1])
         case .y:
-            return Bitmap(width: 5, pattern: [1, 0, 0, 0, 1,
+            return Bitmap(width: 5, binary: [1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1,
                                               0, 1, 1, 1, 0,
@@ -668,7 +668,7 @@ enum fiveSeven: CaseIterable {
                                               0, 0, 1, 0, 0,
                                               0, 0, 1, 0, 0])
         case .z:
-            return Bitmap(width: 5, pattern: [1, 1, 1, 1, 1,
+            return Bitmap(width: 5, binary: [1, 1, 1, 1, 1,
                                               0, 0, 0, 0, 1,
                                               0, 0, 0, 1, 0,
                                               0, 0, 1, 0, 0,
@@ -676,7 +676,7 @@ enum fiveSeven: CaseIterable {
                                               1, 0, 0, 0, 0,
                                               1, 1, 1, 1, 1])
         case .space:
-            return Bitmap(width: 3, pattern: [0, 0, 0,
+            return Bitmap(width: 3, binary: [0, 0, 0,
                                               0, 0, 0,
                                               0, 0, 0,
                                               0, 0, 0,
@@ -684,7 +684,7 @@ enum fiveSeven: CaseIterable {
                                               0, 0, 0,
                                               0, 0, 0])
         case .zero:
-            return Bitmap(width: 5, pattern: [1, 1, 1, 1, 1,
+            return Bitmap(width: 5, binary: [1, 1, 1, 1, 1,
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 1, 1,
                                               1, 0, 1, 0, 1,
@@ -692,7 +692,7 @@ enum fiveSeven: CaseIterable {
                                               1, 0, 0, 0, 1,
                                               1, 1, 1, 1, 1])
         case .one:
-            return Bitmap(width: 5, pattern: [1, 1, 1, 0, 0,
+            return Bitmap(width: 5, binary: [1, 1, 1, 0, 0,
                                               0, 0, 1, 0, 0,
                                               0, 0, 1, 0, 0,
                                               0, 0, 1, 0, 0,
@@ -700,7 +700,7 @@ enum fiveSeven: CaseIterable {
                                               0, 0, 1, 0, 0,
                                               1, 1, 1, 1, 1])
         case .two:
-            return Bitmap(width: 5, pattern: [1, 1, 1, 1, 1,
+            return Bitmap(width: 5, binary: [1, 1, 1, 1, 1,
                                               0, 0, 0, 0, 1,
                                               0, 0, 0, 0, 1,
                                               1, 1, 1, 1, 1,
@@ -708,7 +708,7 @@ enum fiveSeven: CaseIterable {
                                               1, 0, 0, 0, 0,
                                               1, 1, 1, 1, 1])
         case .three:
-            return Bitmap(width: 5, pattern: [1, 1, 1, 1, 1,
+            return Bitmap(width: 5, binary: [1, 1, 1, 1, 1,
                                               0, 0, 0, 0, 1,
                                               0, 0, 0, 0, 1,
                                               1, 1, 1, 1, 1,
@@ -716,7 +716,7 @@ enum fiveSeven: CaseIterable {
                                               0, 0, 0, 0, 1,
                                               1, 1, 1, 1, 1])
         case .four:
-            return Bitmap(width: 5, pattern: [1, 0, 0, 0, 1,
+            return Bitmap(width: 5, binary: [1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1,
                                               1, 1, 1, 1, 1,
@@ -724,7 +724,7 @@ enum fiveSeven: CaseIterable {
                                               0, 0, 0, 0, 1,
                                               0, 0, 0, 0, 1])
         case .five:
-            return Bitmap(width: 5, pattern: [1, 1, 1, 1, 1,
+            return Bitmap(width: 5, binary: [1, 1, 1, 1, 1,
                                               1, 0, 0, 0, 0,
                                               1, 0, 0, 0, 0,
                                               1, 1, 1, 1, 1,
@@ -732,7 +732,7 @@ enum fiveSeven: CaseIterable {
                                               0, 0, 0, 0, 1,
                                               1, 1, 1, 1, 1])
         case .six:
-            return Bitmap(width: 5, pattern: [1, 1, 1, 1, 1,
+            return Bitmap(width: 5, binary: [1, 1, 1, 1, 1,
                                               1, 0, 0, 0, 0,
                                               1, 0, 0, 0, 0,
                                               1, 1, 1, 1, 1,
@@ -740,7 +740,7 @@ enum fiveSeven: CaseIterable {
                                               1, 0, 0, 0, 1,
                                               1, 1, 1, 1, 1])
         case .seven:
-            return Bitmap(width: 5, pattern: [1, 1, 1, 1, 1,
+            return Bitmap(width: 5, binary: [1, 1, 1, 1, 1,
                                               0, 0, 0, 0, 1,
                                               0, 0, 0, 0, 1,
                                               0, 0, 0, 1, 0,
@@ -748,7 +748,7 @@ enum fiveSeven: CaseIterable {
                                               0, 0, 1, 0, 0,
                                               0, 0, 1, 0, 0])
         case .eight:
-            return Bitmap(width: 5, pattern: [1, 1, 1, 1, 1,
+            return Bitmap(width: 5, binary: [1, 1, 1, 1, 1,
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1,
                                               1, 1, 1, 1, 1,
@@ -756,7 +756,7 @@ enum fiveSeven: CaseIterable {
                                               1, 0, 0, 0, 1,
                                               1, 1, 1, 1, 1])
         case .nine:
-            return Bitmap(width: 5, pattern: [1, 1, 1, 1, 1,
+            return Bitmap(width: 5, binary: [1, 1, 1, 1, 1,
                                               1, 0, 0, 0, 1,
                                               1, 0, 0, 0, 1,
                                               1, 1, 1, 1, 1,
@@ -764,7 +764,7 @@ enum fiveSeven: CaseIterable {
                                               0, 0, 0, 0, 1,
                                               1, 1, 1, 1, 1])
         case .period:
-            return Bitmap(width: 1, pattern: [0,
+            return Bitmap(width: 1, binary: [0,
                                               0,
                                               0,
                                               0,
@@ -773,7 +773,7 @@ enum fiveSeven: CaseIterable {
                                               1])
         
         case .magnifyingGlass:
-            return Bitmap(width: 5, pattern: [0, 0, 0, 0, 0,
+            return Bitmap(width: 5, binary: [0, 0, 0, 0, 0,
                                               0, 1, 1, 0, 0,
                                               1, 0, 0, 1, 0,
                                               1, 0, 0, 1, 0,

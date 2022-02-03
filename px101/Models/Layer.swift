@@ -17,6 +17,7 @@ extension ColoringDelegate {
     }
 }
 
+//let x = Data(bina)
 struct Bitmap: Codable, Identifiable {
     
     var id = UUID()
@@ -69,9 +70,9 @@ struct Bitmap: Codable, Identifiable {
         pixels = Array(repeating: color, count: width * height)
     }
     
-    init(width: Int, pattern: [Int], stroke: Color = .white, fill: Color = .clear) {
+    init(width: Int, binary: [Int], stroke: Color = .white, fill: Color = .clear) {
         self.width = width
-        self.pixels = pattern.map { $0 == 1 ? stroke : fill }
+        self.pixels = binary.map { $0 == 1 ? stroke : fill }
     }
 
     subscript(x: Int, y: Int) -> Color {
@@ -205,17 +206,20 @@ extension Bitmap {
 //        let width = min(isEven ? 16 : 15, width * 3)
 //        let height = min(isEven ? 16: 15, height * 3)
         
-        let white = Color(r: 255, g: 255, b: 255, a: 255)
-        let gray = Color(r: 200, g: 200, b: 200, a: 255)
+        let white = Color.white
+        let gray = Color(r: 222, g: 222, b: 222)
+        
+//        let primary = Color(uiColor: .white)
+//        let secondary = Color(uiColor: .lightGray)
         
         let pixelCount = width * height
         
         let pixels: [Color] = (0...(pixelCount)).map { i in
             if isEven && (i / width) % 2 == 0 {
-                return i % 2 == 0 ? gray : white
+                return i % 2 == 0 ? white : gray
             }
             
-            return i % 2 == 0 ? white : gray
+            return i % 2 == 0 ? gray : white
         }
         
         return Bitmap(width: width, pixels: pixels)
@@ -226,9 +230,11 @@ extension Bitmap {
 
     func updatedColors(with newColor: Color, at indexes: [Int]) -> [Color] {
         var new = pixels
-        for index in indexes {
+        let validIndexes = indexes.filter { $0 >= 0 && $0 < pixels.count }
+        for index in validIndexes {
             new[index] = newColor
         }
+        
         return new
     }
     
@@ -240,7 +246,8 @@ extension Bitmap {
 extension Bitmap {
     
     mutating func changeColor(_ color: Color, at indexes: [Int]) {
-        indexes.forEach { i in
+        let validIndexes = indexes.filter { $0 >= 0 && $0 < pixels.count }
+        validIndexes.forEach { i in
             pixels[i] = color
         }
     }

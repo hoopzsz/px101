@@ -30,36 +30,36 @@ class px101Tests: XCTestCase {
                            1, 1, 1]
         
         
-        let inserted1 = Bitmap(width: 5, pattern: values).insert(newBitmap: Bitmap(width: 3, pattern: insertValue), at: 0, y: 0)
+        let inserted1 = Bitmap(width: 5, binary: values).insert(newBitmap: Bitmap(width: 3, binary: insertValue), at: 0, y: 0)
         
-        let inserted1r = Bitmap(width: 3, pattern: [1, 1, 1, 0, 0,
+        let inserted1r = Bitmap(width: 3, binary: [1, 1, 1, 0, 0,
                                                     1, 1, 1, 0, 0,
                                                     0, 0, 0, 0, 0,
                                                     0, 0, 0, 0, 0,
                                                     0, 0, 0, 0, 0,
                                                     0, 0, 0, 0, 0,])
         
-        let inserted2 = Bitmap(width: 5, pattern: values).insert(newBitmap: Bitmap(width: 3, pattern: insertValue), at: 3, y: 1)
+        let inserted2 = Bitmap(width: 5, binary: values).insert(newBitmap: Bitmap(width: 3, binary: insertValue), at: 3, y: 1)
 
-        let inserted2r = Bitmap(width: 3, pattern: [0, 0, 0, 0, 0,
+        let inserted2r = Bitmap(width: 3, binary: [0, 0, 0, 0, 0,
                                                     0, 0, 0, 1, 1,
                                                     0, 0, 0, 1, 1,
                                                     0, 0, 0, 0, 0,
                                                     0, 0, 0, 0, 0,
                                                     0, 0, 0, 0, 0,])
         
-        let inserted3 = Bitmap(width: 5, pattern: values).insert(newBitmap: Bitmap(width: 3, pattern: insertValue), at: 4, y: 5)
+        let inserted3 = Bitmap(width: 5, binary: values).insert(newBitmap: Bitmap(width: 3, binary: insertValue), at: 4, y: 5)
 
-        let inserted3r = Bitmap(width: 3, pattern: [0, 0, 0, 0, 0,
+        let inserted3r = Bitmap(width: 3, binary: [0, 0, 0, 0, 0,
                                                     0, 0, 0, 0, 0,
                                                     0, 0, 0, 0, 0,
                                                     0, 0, 0, 0, 0,
                                                     0, 0, 0, 0, 0,
                                                     0, 0, 0, 0, 1,])
         
-        let inserted4 = Bitmap(width: 5, pattern: values).insert(newBitmap: Bitmap(width: 3, pattern: insertValue), at: -1, y: -1)
+        let inserted4 = Bitmap(width: 5, binary: values).insert(newBitmap: Bitmap(width: 3, binary: insertValue), at: -1, y: -1)
 
-        let inserted4r = Bitmap(width: 3, pattern: [1, 1, 0, 0, 0,
+        let inserted4r = Bitmap(width: 3, binary: [1, 1, 0, 0, 0,
                                                     0, 0, 0, 0, 0,
                                                     0, 0, 0, 0, 0,
                                                     0, 0, 0, 0, 0,

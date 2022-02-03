@@ -83,10 +83,8 @@ final class ProjectsViewController: UIViewController, NSFetchedResultsController
     override func viewDidLoad() {
         super.viewDidLoad()
         
-//        view.backgroundColor = UIColor(red: 100.0/255.0, green: 112.0/255.0, blue: 90.0/255.0, alpha: 1.0)
-//        view.backgroundColor = .gray
         navigationItem.backButtonTitle = ""
-        view.backgroundColor = .tertiarySystemBackground
+        view.backgroundColor = .systemBackground
         
         collectionView = UICollectionView(frame: view.frame, collectionViewLayout: UICollectionViewFlowLayout())
         collectionView.backgroundColor = .clear
@@ -100,9 +98,9 @@ final class ProjectsViewController: UIViewController, NSFetchedResultsController
         let px101 = px101Cases
             .map { $0.bitmap }
             .reduce(Px101Logo.p.bitmap) { stitch($0, to: $1) }
-//            .scaled(2)
+            .scaled(2)
         
-        let imageView = UIImageView(image: UIImage(bitmap: px101)?.withTintColor(.tertiaryLabel))
+        let imageView = UIImageView(image: UIImage(bitmap: px101)?.withTintColor(.label))
         imageView.contentMode = .center
         navigationItem.titleView = imageView
     }
@@ -136,6 +134,11 @@ final class ProjectsViewController: UIViewController, NSFetchedResultsController
     @objc private func addArtworkButtonPressed() {
         let vc = NewProjectViewController()
         navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    @objc private func settingsButtonPressed() {
+//        let vc = NewProjectViewController()
+//        navigationController?.pushViewController(vc, animated: true)
     }
 }
 
@@ -234,7 +237,6 @@ class ImageCollectionViewCell: UICollectionViewCell {
 
         let image = UIImage(bitmap: bitmap)
         imageView.image = image
-
     }
 }
 

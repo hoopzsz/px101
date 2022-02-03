@@ -60,6 +60,7 @@ final class PaletteViewController: UIViewController {
         layout.scrollDirection = .horizontal
         self.collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.isPagingEnabled = true
+//        colle
 
         super.init(nibName: nil, bundle: nil)
     }
@@ -73,7 +74,7 @@ final class PaletteViewController: UIViewController {
 
         collectionView.dataSource = self
         collectionView.delegate = self
-        collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: cellIdentifier)
+        collectionView.register(ColorPaletteCollectionViewCell.self, forCellWithReuseIdentifier: cellIdentifier)
         collectionView.backgroundColor = .clear
         view.addSubview(collectionView)
 
@@ -99,22 +100,24 @@ extension PaletteViewController: UICollectionViewDelegateFlowLayout {
 extension PaletteViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-//        if let selectedIndexPath = selectedIndexPath, let previousSelectionCell = collectionView.cellForItem(at: selectedIndexPath) {
-//            previousSelectionCell.animateDeselection()
-//        }
-//
-//        if let cell = collectionView.cellForItem(at: indexPath) {
+        if let selectedIndexPath = selectedIndexPath, let previousSelectionCell = collectionView.cellForItem(at: selectedIndexPath) as? ColorPaletteCollectionViewCell {
+            if collectionView.indexPathsForVisibleItems.contains(selectedIndexPath) {
+                previousSelectionCell.animateDeselection()
+            }
+        }
+        
+        if let cell = collectionView.cellForItem(at: indexPath) as? ColorPaletteCollectionViewCell {
             if indexPath.row == palette.colors.count {
                 delegate?.didPressPlusButton()
             } else {
-//                cell.animateSelection()
+                cell.animateSelection()
                 selection = indexPath.row
                 selectedIndexPath = indexPath
                 delegate?.didSelectColor(palette.colors[selection])
             }
-//        }
+        }
         
-//        collectionView.setNeedsDisplay()
+        collectionView.setNeedsDisplay()
     }
     
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
@@ -134,10 +137,7 @@ extension PaletteViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        cell.layer.borderColor = UIColor.label.cgColor
-        cell.layer.shadowColor = UIColor.tertiaryLabel.cgColor
-        cell.layer.shadowOffset = CGSize(width: 0, height: 3)
-        cell.layer.borderWidth = 2
+        guard let cell = cell as? ColorPaletteCollectionViewCell else { return }
         cell.contentView.subviews.forEach { $0.removeFromSuperview() }
         if indexPath.row == palette.colors.count {
             cell.backgroundColor = .clear
@@ -145,11 +145,28 @@ extension PaletteViewController: UICollectionViewDataSource {
             cell.layer.borderColor = UIColor.clear.cgColor
             let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 32, height: 32))
             imageView.image = UIImage(systemName: "plus.circle.fill")
-            imageView.tintColor = .systemGray
+            imageView.tintColor = .tertiaryLabel
             cell.contentView.addSubview(imageView)
         } else {
             cell.layer.cornerRadius = 0
-            cell.backgroundColor = palette.colors[indexPath.row].uiColor
+            cell.setColor(palette.colors[indexPath.row])
+//            if palette.colors[indexPath.row] == .clear {
+//                cell.layer.backgroundColor = UIColor.white.cgColor
+//                cell.drawClearColorIndicator()
+//            } else {
+//                cell.backgroundColor = palette.colors[indexPath.row].uiColor
+//            }
+        }
+        
+        if indexPath == selectedIndexPath {
+            cell.animateSelection()
+        }
+    }
+    
+    
+    func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        if indexPath == selectedIndexPath, let cell = cell as? ColorPaletteCollectionViewCell {
+            cell.animateDeselection()
         }
     }
     
@@ -157,3 +174,91 @@ extension PaletteViewController: UICollectionViewDataSource {
         collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath)
     }
 }
+
+extension UICollectionViewCell {
+//
+//    func animateSelection() {
+//        UIView.animate(withDuration: 0.2 ) {
+//            self.center = CGPoint(x: self.center.x, y: self.center.y - 4)
+//            self.layer.borderColor = UIColor.green.cgColor
+//        }
+//    }
+//
+//    func animateDeselection() {
+//        UIView.animate(withDuration: 0.2) {
+//            self.center = CGPoint(x: self.center.x, y: self.center.y + 4)
+//            self.layer.borderColor = UIColor.label.cgColor
+//        }
+//    }
+    
+    func drawClearColorIndicator() {
+        guard let context = UIGraphicsGetCurrentContext() else { return }
+        context.setStrokeColor(.red)
+        context.setLineWidth(2)
+        context.move(to: CGPoint(x: 0, y: bounds.height))
+        context.addLine(to: CGPoint(x: bounds.width, y: 0))
+        context.strokePath()
+//        context.setstroke
+    }
+}
+
+final class ColorPaletteCollectionViewCell: UICollectionViewCell {
+    
+    var isClear = false
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        layer.borderWidth = 2
+        layer.borderColor = UIColor.label.cgColor
+        layer.shadowColor = UIColor.tertiaryLabel.cgColor
+//        layer.shadowRadius = 3.0
+        layer.shadowOffset = CGSize(width: 0, height: 3)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+//    override func draw(_ rect: CGRect) {
+//        super.draw(rect)
+//
+//        guard isClear else { return }
+//        guard let context = UIGraphicsGetCurrentContext() else { return }
+//        context.setStrokeColor(.red)
+//        context.setLineWidth(2)
+//        context.move(to: CGPoint(x: 0, y: frame.height))
+//        context.addLine(to: CGPoint(x: frame.width, y: 0))
+//        context.strokePath()
+//    }
+    
+    func setColor(_ color: Color) {
+        if color == .clear {
+            isClear = true
+            contentView.backgroundColor = .white
+            setNeedsDisplay()
+        } else {
+            isClear = false
+            contentView.backgroundColor = color.uiColor
+        }
+    }
+    
+    func animateSelection() {
+        UIView.animate(withDuration: 0.2 ) {
+            self.center = CGPoint(x: self.center.x, y: self.center.y - 4)
+            self.layer.borderColor = UIColor.green.cgColor
+            self.layer.shadowOpacity = 0.5
+
+        }
+    }
+    
+    func animateDeselection() {
+        UIView.animate(withDuration: 0.2) {
+            self.center = CGPoint(x: self.center.x, y: self.center.y + 4)
+            self.layer.borderColor = UIColor.label.cgColor
+            self.layer.shadowOpacity = 0
+
+        }
+    }
+}
+

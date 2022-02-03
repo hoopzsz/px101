@@ -20,6 +20,7 @@
 		A362D6FE2750C8AE00117B65 /* CGPointExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A362D6EE2750C8AE00117B65 /* CGPointExtensions.swift */; };
 		A362D6FF2750C8AE00117B65 /* UIColorExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A362D6EF2750C8AE00117B65 /* UIColorExtensions.swift */; };
 		A362D7002750C8AE00117B65 /* ShapeTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = A362D6F02750C8AE00117B65 /* ShapeTools.swift */; };
+		A37E2C9427819CE700C4D3A7 /* Icons.swift in Sources */ = {isa = PBXBuildFile; fileRef = A37E2C9327819CE700C4D3A7 /* Icons.swift */; };
 		A3B750942750C1C700C0EDF7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B750932750C1C700C0EDF7 /* AppDelegate.swift */; };
 		A3B750962750C1C700C0EDF7 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B750952750C1C700C0EDF7 /* SceneDelegate.swift */; };
 		A3B7509E2750C1C700C0EDF7 /* px101.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = A3B7509C2750C1C700C0EDF7 /* px101.xcdatamodeld */; };
@@ -61,6 +62,7 @@
 		A362D6EE2750C8AE00117B65 /* CGPointExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CGPointExtensions.swift; sourceTree = "<group>"; };
 		A362D6EF2750C8AE00117B65 /* UIColorExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIColorExtensions.swift; sourceTree = "<group>"; };
 		A362D6F02750C8AE00117B65 /* ShapeTools.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShapeTools.swift; sourceTree = "<group>"; };
+		A37E2C9327819CE700C4D3A7 /* Icons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Icons.swift; path = px101/ViewControllers/Icons.swift; sourceTree = SOURCE_ROOT; };
 		A3B750902750C1C700C0EDF7 /* px101.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = px101.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A3B750932750C1C700C0EDF7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A3B750952750C1C700C0EDF7 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -103,6 +105,7 @@
 		A362D6DD2750C8AE00117B65 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				A37E2C9327819CE700C4D3A7 /* Icons.swift */,
 				A362D6DE2750C8AE00117B65 /* Layer.swift */,
 				A362D6DF2750C8AE00117B65 /* Color.swift */,
 			);
@@ -330,6 +333,7 @@
 				A3B7509E2750C1C700C0EDF7 /* px101.xcdatamodeld in Sources */,
 				A3B750942750C1C700C0EDF7 /* AppDelegate.swift in Sources */,
 				A362D6F52750C8AE00117B65 /* HomeViewController.swift in Sources */,
+				A37E2C9427819CE700C4D3A7 /* Icons.swift in Sources */,
 				A362D6F42750C8AE00117B65 /* NewProjectViewController.swift in Sources */,
 				A3B750962750C1C700C0EDF7 /* SceneDelegate.swift in Sources */,
 				A362D6FF2750C8AE00117B65 /* UIColorExtensions.swift in Sources */,
@@ -514,6 +518,7 @@
 				DEVELOPMENT_TEAM = 6W3D273VP2;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = px101/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "PX-101";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -522,7 +527,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = ca.danielhooper.px101;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -541,6 +546,7 @@
 				DEVELOPMENT_TEAM = 6W3D273VP2;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = px101/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "PX-101";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -549,7 +555,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = ca.danielhooper.px101;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

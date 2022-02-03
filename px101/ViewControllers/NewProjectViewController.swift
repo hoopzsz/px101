@@ -216,20 +216,11 @@ extension NewProjectViewController: UITextFieldDelegate {
         guard let text = textField.text else { return }
         
         if textField.tag == 0 {
-            width =  max(minimumValue, min(Double(text) ?? 16, maximumValue))
+            width = max(minimumValue, min(Double(text) ?? 16, maximumValue))
         } else {
             height = max(minimumValue, min(Double(text) ?? 16, maximumValue))
         }
     }
-    
-//    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-//        if textField.tag == 0 {
-//            width = Double(Int(textField.text ?? "") ?? 16)
-//        } else {
-//            height = Double(Int(textField.text ?? "") ?? 16)
-//        }
-//        return true
-//    }
 }
 
 extension NewProjectViewController: UINavigationControllerDelegate {
