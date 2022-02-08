@@ -8,9 +8,7 @@
 import UIKit
 
 final class NewProjectViewController: UIViewController {
-    
-//    private let segmentedControl: UISegmentedControl
-        
+            
     private let nameRow = UIView()
     private let nameLabel = UILabel()
     private let nameField = UITextField()
@@ -35,7 +33,7 @@ final class NewProjectViewController: UIViewController {
     let seperator = UIView()
     
     private let minimumValue = 4.0
-    private let maximumValue = 128.0
+    private let maximumValue = 256.0
     
     private var width = 16.0 {
         didSet {
@@ -60,15 +58,10 @@ final class NewProjectViewController: UIViewController {
         super.viewDidLoad()
 
         navigationController?.delegate = self
-        title = "New Project"
-        navigationItem.title = "New Project"
+        title = ""
+        navigationItem.title = ""
         
         view.backgroundColor = .systemBackground
-        
-//        view.addSubview(segmentedControl)
-//
-//        view.addSubview(nameLabel)
-//        view.addSubview(nameField)
         
         view.addSubview(widthLabel)
         view.addSubview(heightLabel)
@@ -104,9 +97,6 @@ final class NewProjectViewController: UIViewController {
             $0.keyboardType = .numberPad
         }
         
-        nameLabel.text = "Project name"
-        nameField.keyboardType = .namePhonePad
-        nameField.placeholder = "Enter a name"
         widthLabel.text = "Width"
         heightLabel.text = "Height"
         
@@ -125,13 +115,13 @@ final class NewProjectViewController: UIViewController {
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Create", style: .plain, target: self, action: #selector(createButtonPressed))
         
-        let newProjectCases: [fiveSeven] = [.e, .w, .space, .p, .r, .o, .j, .e, .c, .t]
-        let newProject = newProjectCases
-            .flatMap { [fiveSeven.space.bitmap, $0.bitmap] }
-            .reduce(fiveSeven.n.bitmap) { stitch($0, to: $1) }
+        let newProjecLetters: [fiveSeven] = [.n, .e, .w, .space, .p, .r, .o, .j, .e, .c, .t]
+        let newProjectImage = newProjecLetters
+            .flatMap { [fiveSeven.space.bitmap, $0.bitmap] } // Interleave characters with spaces
+            .reduce(.initial) { stitch($0, to: $1) } // Assemble from left to right
             .scaled(2)
         
-        let imageView = UIImageView(image: UIImage(bitmap: newProject)?.withTintColor(UIColor.label))
+        let imageView = UIImageView(image: UIImage(bitmap: newProjectImage)?.withTintColor(UIColor.label))
         imageView.contentMode = .center
         navigationItem.titleView = imageView
     }

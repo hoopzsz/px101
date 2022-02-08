@@ -14,11 +14,11 @@ enum GestureDirection {
     case bottomLeftToTopRight
 }
 
-private func horizontalDistance(from a: Int, to b: Int, width: Int) -> Int {
+func horizontalDistance(from a: Int, to b: Int, width: Int) -> Int {
     abs(a % width - b % width)
 }
 
-private func verticalDistance(from a: Int, to b: Int, width: Int) -> Int {
+func verticalDistance(from a: Int, to b: Int, width: Int) -> Int {
     abs(a / width - b / width)
 }
 
@@ -61,38 +61,17 @@ func drawCircle(at firstIndex: Int, to secondIndex: Int, in bitmap: Bitmap) -> [
     
     let firstX = firstIndex % bitmap.width
     let firstY = firstIndex / bitmap.width
-    
-    let secondX = secondIndex % bitmap.width
-    let secondY = secondIndex / bitmap.width
-    
-    
+//
+//    let secondX = secondIndex % bitmap.width
+//    let secondY = secondIndex / bitmap.width
     
     let horizontalLength = horizontalDistance(from: firstIndex, to: secondIndex, width: bitmap.width)
     let verticalLength   = verticalDistance(from: firstIndex, to: secondIndex, width: bitmap.width)
     
-    let a2 = pow(Double(horizontalLength), 2)
-    let b2 = pow(Double(verticalLength), 2)
+    let radius = horizontalLength / 2// max(horizontalLength, verticalLength) / 2
     
-    let c = Int(sqrt(a2 + b2))
-    let radius = c
-    print("radius: \(radius)")
-//    let radius = max(horizontalLength, verticalLength) / 2
-    
-    let leftIndex = firstIndex % bitmap.width > secondIndex / bitmap.width ? secondIndex : firstIndex
-    let rightIndex = leftIndex == firstIndex ? secondIndex : firstIndex
-    let xCenter = (leftIndex % bitmap.width) + ((rightIndex % bitmap.width) / 2)
-    
-    let topIndex = firstIndex < secondIndex ? firstIndex : secondIndex
-    let bottomIndex = firstIndex == topIndex ? secondIndex : firstIndex
-    let yCenter = (bottomIndex / bitmap.width) + (topIndex / bitmap.width / 2)
-//    print("touch down: \(firstIndex)")
-//    print("touch current: \(secondIndex)")
-//    print("xC: \(xCenter)")
-//    print("yC: \(yCenter)")
-
-//    let xCenter = firstIndex + (horizontalLength / 2) // ?
-//    let yCenter = 0 // ?
-    
+    let xCenter = firstX + (horizontalLength / 2) // ?
+    let yCenter = firstY + (verticalLength / 2)// ?
     
     var x = 0
     var y = radius
@@ -449,13 +428,15 @@ func fill(with newColor: Color, at index: Int, in bitmap: Bitmap) -> [Int] {
 
     let oldColor = bitmap.pixels[index]
     
+    if oldColor == newColor { return [] } // Exit early
+    
     func isValid(_ i: Int) -> Bool {
         i >= 0 && i < copy.pixels.count && copy.pixels[i] == oldColor
     }
     
     var indexQueue: [Int] = [index]
 
-    var allIndexes = [index]
+    var allIndexes: Set<Int> = [index]
     
     while indexQueue.isNotEmpty {
         let index = indexQueue.removeLast()
@@ -468,55 +449,30 @@ func fill(with newColor: Color, at index: Int, in bitmap: Bitmap) -> [Int] {
         
         if isValid(above) {
             indexQueue.append(above)
-            allIndexes.append(above)
+            allIndexes.insert(above)
         }
         if isValid(below) {
             indexQueue.append(below)
-            allIndexes.append(below)
+            allIndexes.insert(below)
         }
         if isValid(left) {
-            indexQueue.append(left)
-            allIndexes.append(left)
+            // Don't go past left edge
+            if left % bitmap.width < index % bitmap.width {
+                indexQueue.append(left)
+                allIndexes.insert(left)
+            }
         }
         if isValid(right) {
-            indexQueue.append(right)
-            allIndexes.append(right)
+            // Don't go past right edge
+//            if index % bitmap.width > right % bitmap.width {
+                indexQueue.append(right)
+                allIndexes.insert(right)
+//            }
         }
     }
         
-    return allIndexes
+    return allIndexes.shuffled()
 }
-
-//
-//func fill2(with newColor: Color, at index: Int, in bitmap: Bitmap) -> [Int] {
-////    let oldColor =
-//    var results: [Int] = []
-////    var data = data
-//
-//    func floodFillRecursively(_ i: Int, oldColor: Color, newColor: Color) {
-//        guard i >= 0 && i < data.count else { return }
-//
-//        if data[i] == oldColor {
-//            data[i] = newColor
-//            results.append(i)
-//            if i % (arrayWidth) != 0 {
-//                floodFillRecursively(i - 1, oldColor: oldColor, newColor: newColor)
-//            }
-//            if i % arrayWidth != arrayWidth - 1 {
-//                floodFillRecursively(i + 1, oldColor: oldColor, newColor: newColor)
-//            }
-////            if i / arrayWidth > 0 {
-//                floodFillRecursively(i - arrayWidth, oldColor: oldColor, newColor: newColor)
-////            }
-////            if i < (data.count - arrayWidth) {
-//                floodFillRecursively(i + arrayWidth, oldColor: oldColor, newColor: newColor)
-////            }
-//        }
-//    }
-//
-//    floodFillRecursively(index, oldColor: oldColor, newColor: newColor)
-////    return results
-//}
 
 extension Collection {
     
@@ -524,3 +480,106 @@ extension Collection {
         !isEmpty
     }
 }
+
+typealias Point = (Int, Int)
+
+//private func circlePoints(centerX cx: Int, centerY cy: Int, x: Int, y: Int) -> [Point] {
+//    var points: [Point] = []
+//    if x == 0 {
+//        points = [(cx, cy + y),
+//                  (cx, cy - y),
+//                  (cx + y, cy),
+//                  (cx - y, cy)]
+//    } else if x == y {
+//        points = [(cx + x, cy + y),
+//                  (cx - x, cy + y),
+//                  (cx + x, cy - y),
+//                  (cx - x, cy - y)]
+//    } else if x < y {
+//        points = [(cx + x, cy + y),
+//                  (cx - x, cy + y),
+//                  (cx + x, cy - y),
+//                  (cx - x, cy - y),
+//                  (cx + y, cy + x),
+//                  (cx - y, cy + x)
+//                  (cx + y, cy - x)
+//                  (cx - y, cy - x)]
+//    }
+//    return points
+//}
+
+//func circle(centerX: Int, centerY: Int, radius: Int) {
+//
+//    let x = 0
+//    let y = radius
+//    let p = (5 - radius * 4) / 4
+//
+//    var points = circlePoints(centerX: centerX, centerY: centerY, x: x, y: y)
+//
+//    while (x < y) {
+//        x += 1
+//        if (p < 0) {
+//            p += 2 * x + 1
+//        } else {
+//            y -= 1
+//            p += 2 * (x - y) + 1
+//        }
+//        points.append(contentsOf: circlePoints(centerX: centerX, centerY: centerY, x: x, y: y))
+//    }
+//    return points.map {
+//
+//    }
+//}
+
+/*
+ 
+ 
+ 
+ private final void circlePoints(int cx, int cy, int x, int y, int pix)
+     {
+         int act = Color.red.getRGB();
+         
+         if (x == 0) {
+             raster.setPixel(act, cx, cy + y);
+             raster.setPixel(pix, cx, cy - y);
+             raster.setPixel(pix, cx + y, cy);
+             raster.setPixel(pix, cx - y, cy);
+         } else
+         if (x == y) {
+             raster.setPixel(act, cx + x, cy + y);
+             raster.setPixel(pix, cx - x, cy + y);
+             raster.setPixel(pix, cx + x, cy - y);
+             raster.setPixel(pix, cx - x, cy - y);
+         } else
+         if (x < y) {
+             raster.setPixel(act, cx + x, cy + y);
+             raster.setPixel(pix, cx - x, cy + y);
+             raster.setPixel(pix, cx + x, cy - y);
+             raster.setPixel(pix, cx - x, cy - y);
+             raster.setPixel(pix, cx + y, cy + x);
+             raster.setPixel(pix, cx - y, cy + x);
+             raster.setPixel(pix, cx + y, cy - x);
+             raster.setPixel(pix, cx - y, cy - x);
+         }
+     }
+
+     public void circleMidpoint(int xCenter, int yCenter, int radius, Color c)
+     {
+         int pix = c.getRGB();
+         int x = 0;
+         int y = radius;
+         int p = (5 - radius*4)/4;
+
+         circlePoints(xCenter, yCenter, x, y, pix);
+         while (x < y) {
+             x++;
+             if (p < 0) {
+                 p += 2*x+1;
+             } else {
+                 y--;
+                 p += 2*(x-y)+1;
+             }
+             circlePoints(xCenter, yCenter, x, y, pix);
+         }
+     }
+ */

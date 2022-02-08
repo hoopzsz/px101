@@ -7,6 +7,13 @@
 
 import UIKit
 import CoreData
+//
+//struct Project: Codable {
+//    var id = UUID()
+//    let name: String
+//    let creationDate: Date
+//    let lastEditedDate: Date
+//}
 
 struct Storage {
     
@@ -26,7 +33,6 @@ struct Storage {
                     print("!!!")
                     return nil
                 }
-//                let pixels = pixelData.compactMap { Color.color(data: $0) }
                 return Bitmap(id: id, width: width, data: pixelData)
             }
             return bitmaps
@@ -42,7 +48,6 @@ struct Storage {
         let fetchRequest = BitmapObject.fetchRequest()
 
         fetchRequest.predicate = NSPredicate(format: "id = %@", bitmap.id.uuidString)
-//
         let results = try? context.fetch(fetchRequest)
         
         let object: BitmapObject
@@ -51,7 +56,6 @@ struct Storage {
         } else {
             object = results!.first!
         }
-//
         object.id = bitmap.id
         object.width = Int16(bitmap.width)
         object.pixels = try! JSONEncoder().encode(bitmap.pixels)
@@ -64,6 +68,68 @@ struct Storage {
     }
 }
 
+final class ProjectsViewController: UIViewController, NSFetchedResultsControllerDelegate {
+    
+    private let containerView = UIView()
+    private let collectionView = BitmapsCollectionViewController()
+    
+    init() {
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        navigationItem.backButtonTitle = ""
+        view.backgroundColor = .systemBackground
+        
+        view.addSubview(containerView)
+        containerView.frame = view.frame
+        addCollectionView()
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "plus.circle"), style: .plain, target: self, action: #selector(addArtworkButtonPressed))
+        
+        let px101Cases: [Px101Logo] = [.p, .space2, .x, .space2, .dash, .space1, .one, .space2, .zero, .space1, .one]
+        let px101 = px101Cases
+            .map { $0.bitmap }
+            .reduce(.initial) { stitch($0, to: $1) }
+            .scaled(2)
+        
+        let imageView = UIImageView(image: UIImage(bitmap: px101)?.withTintColor(.label))
+        imageView.contentMode = .center
+        imageView.layer.magnificationFilter = .linear
+        navigationItem.titleView = imageView
+    }
+    
+    @objc private func addArtworkButtonPressed() {
+        let vc = NewProjectViewController()
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    private func addCollectionView() {
+        containerView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(containerView)
+        
+        collectionView.view.frame = containerView.frame
+//        paletteViewController.delegate = self
+        containerView.addSubview(collectionView.view)
+//        paletteViewController.view.clipsToBounds = true
+        collectionView.willMove(toParent: self)
+        addChild(collectionView)
+        collectionView.didMove(toParent: self)
+        
+        collectionView.didSelect = { bitmap in
+            let viewController = CanvasViewController(bitmap: bitmap)
+            self.navigationController?.pushViewController(viewController, animated: true)
+        }
+    }
+}
+
+/*
 final class ProjectsViewController: UIViewController, NSFetchedResultsControllerDelegate {
 
     private var collectionView: UICollectionView!
@@ -205,7 +271,7 @@ extension ProjectsViewController: UICollectionViewDelegateFlowLayout {
         CGSize(width: 96, height: 96)
     }
 }
-
+*/
 class ImageCollectionViewCell: UICollectionViewCell {
 
     private let transparencyImageView = UIImageView()

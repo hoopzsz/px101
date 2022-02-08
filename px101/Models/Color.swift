@@ -13,7 +13,6 @@ struct Color: Codable, Equatable, Hashable {
 }
 
 extension Color {
-    
     init(uiColor: UIColor) {
         let rgba = uiColor.rgbaSafe
         
@@ -21,6 +20,16 @@ extension Color {
         self.g = UInt8(rgba.green * 255)
         self.b = UInt8(rgba.blue * 255)
         self.a = UInt8(rgba.alpha * 255)
+    }
+}
+
+extension Color {
+    var hex: String {
+        String(format:"%02X", r) + String(format:"%02X", g) + String(format:"%02X", b)
+    }
+    
+    var darkLevel: Int {
+        Int(r) + Int(g) + Int(b)
     }
 }
 

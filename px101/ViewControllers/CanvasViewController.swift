@@ -7,86 +7,7 @@
 
 import UIKit
 
-enum DrawingTool {
-    case pencil, line, selection, rectangle, rectangleFill, circle, fill, none
-}
-
-//extension DrawingTool {
-//    var bitmap: Bitmap {
-//        switch self {
-//        case .pencil:
-//            return Bitmap(width: 24, pattern: [])
-//        case .line:
-//            return Bitmap(width: 24, pattern: [])
-//        case .rectangle:
-//            return Bitmap(width: 24, pattern: [])
-//        case .circle:
-//            return Bitmap(width: 24, pattern: [])
-//        case .fill:
-//            return Bitmap(width: 24, pattern: [])
-//        }
-//    }
-//}
-
-protocol ColorSelectionDelegate: AnyObject {
-    func didChangeColors(_ strokeColor: UIColor, _ fillColor: UIColor)
-}
-
-
-final class ColorSelectionView: UIView {
-    
-    weak var delegate: ColorSelectionDelegate? = nil
-    
-    var strokeColor: UIColor {
-        didSet {
-            setNeedsDisplay()
-        }
-    }
-    
-    var fillColor: UIColor {
-        didSet {
-            setNeedsDisplay()
-        }
-    }
-    
-    init(strokeColor: UIColor, fillColor: UIColor, frame: CGRect) {
-        self.strokeColor = strokeColor
-        self.fillColor = fillColor
-        super.init(frame: frame)
-        backgroundColor = .clear
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    override func draw(_ rect: CGRect) {
-        guard let context = UIGraphicsGetCurrentContext() else { return }
-        context.setStrokeColor(UIColor.label.cgColor)
-        context.setFillColor(fillColor.cgColor)
-        let strokeRect = CGRect(x: 0, y: 0, width: rect.width * 0.75, height: rect.height * 0.75)
-        let fillRect = CGRect(x: rect.width * 0.25, y: rect.width * 0.25, width: rect.width * 0.75, height: rect.height * 0.75)
-        
-        
-        context.setFillColor(fillColor.cgColor)
-        context.addRect(fillRect)
-        context.drawPath(using: .fillStroke)
-        context.setFillColor(strokeColor.cgColor)
-        context.addRect(strokeRect)
-        context.drawPath(using: .fillStroke)
-    }
-    
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        super.touchesEnded(touches, with: event)
-        let oldStroke = strokeColor
-        let oldFill = fillColor
-        strokeColor = oldFill
-        fillColor = oldStroke
-        delegate?.didChangeColors(strokeColor, fillColor)
-    }
-}
-
-final class CanvasViewController: UIViewController {
+final class CanvasViewController: UIViewController, UINavigationControllerDelegate {
     
     private let scrollview = UIScrollView()
     private let canvasView = UIView()
@@ -105,8 +26,7 @@ final class CanvasViewController: UIViewController {
     // Palette
     private let paletteContainerView = UIView(frame: .zero)
     private var paletteViewController: PaletteViewController!
-    private var palette: Palette = .default
-    private let colorSelectionView = ColorSelectionView(strokeColor: .black, fillColor: .white, frame: .zero)
+//    private var palette: Palette = .default
 
     // Top buttons
     private var undoButton: UIBarButtonItem!
@@ -158,6 +78,8 @@ final class CanvasViewController: UIViewController {
     }
     
     private var strokeColor: Color = .black
+    private var temporaryColorSelection: UIColor? = nil
+    
     private var selectedTool: DrawingTool = .pencil {
         didSet {
             updateButtonStates()
@@ -169,6 +91,8 @@ final class CanvasViewController: UIViewController {
             bitmapView.image = UIImage(bitmap: bitmap)
         }
     }
+    
+    private var selectionArea: Bitmap? = nil
     
     init(bitmap: Bitmap) {
         self.bitmap = bitmap
@@ -184,18 +108,20 @@ final class CanvasViewController: UIViewController {
         gridView = StrokeGridView(width: bitmap.width, height: bitmap.height)
         gridView.backgroundColor = .clear
         gestureView = GestureView(width: bitmap.width, height: bitmap.height, frame: .zero)
-        
-        paletteViewController = PaletteViewController(palette: .default)
+//        self.palette = bitmap.palette
+        var palette = bitmap.palette//.sorted(by: { $1.darkLevel > $0.darkLevel }
+        if palette.count == 1, palette[0] == .clear {
+            palette = [.black, .gray, .white, .red, .orange, .yellow, .blue, .green, .magenta]
+        }
+        paletteViewController = PaletteViewController(palette: palette.sorted(by: { $1.darkLevel > $0.darkLevel }))
 
         super.init(nibName: nil, bundle: nil)
         self.title = ""
         self.navigationItem.title = ""
-        undoButton = UIBarButtonItem(image: UIImage(systemName: "arrowshape.turn.up.backward"), style: .plain, target: self, action: #selector(undoButtonPressed))
-        redoButton = UIBarButtonItem(image: UIImage(systemName: "arrowshape.turn.up.forward"), style: .plain, target: self, action: #selector(redoButtonPressed))
+        undoButton = UIBarButtonItem(image: UIImage(systemName: "arrowshape.turn.up.left.circle"), style: .plain, target: self, action: #selector(undoButtonPressed))
+        redoButton = UIBarButtonItem(image: UIImage(systemName: "arrowshape.turn.up.forward.circle"), style: .plain, target: self, action: #selector(redoButtonPressed))
         undoButton.isEnabled = false
         redoButton.isEnabled = false
-        
-        colorSelectionView.clipsToBounds = false
     }
     
     required init?(coder: NSCoder) {
@@ -236,7 +162,7 @@ final class CanvasViewController: UIViewController {
         view.addSubview(buttonStack)
         
         gestureView.delegate = self
-        colorSelectionView.delegate = self
+//        colorSelectionView.delegate = self
         
         addPaletteViewController()
         
@@ -248,7 +174,7 @@ final class CanvasViewController: UIViewController {
     }
     
     override func viewWillLayoutSubviews() {
-        colorSelectionView.translatesAutoresizingMaskIntoConstraints = false
+//        colorSelectionView.translatesAutoresizingMaskIntoConstraints = false
         scrollview.translatesAutoresizingMaskIntoConstraints = false
         zoomLabel.translatesAutoresizingMaskIntoConstraints = false
 
@@ -274,12 +200,12 @@ final class CanvasViewController: UIViewController {
             buttonStack.heightAnchor.constraint(greaterThanOrEqualToConstant: 48),
             buttonStack.leadingAnchor.constraint(equalTo: layoutGuide.leadingAnchor, constant: 0),
             buttonStack.trailingAnchor.constraint(equalTo: layoutGuide.trailingAnchor, constant: 0),
-            buttonStack.bottomAnchor.constraint(equalTo: paletteContainerView.topAnchor, constant: -16),
+            buttonStack.bottomAnchor.constraint(equalTo: paletteContainerView.topAnchor, constant: -4),
             
             scrollview.topAnchor.constraint(equalTo: layoutGuide.topAnchor),
             scrollview.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollview.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollview.bottomAnchor.constraint(equalTo: buttonStack.topAnchor, constant: -16),
+            scrollview.bottomAnchor.constraint(equalTo: buttonStack.topAnchor, constant: -4),
         ])
         
         canvasView.frame = scrollview.bounds
@@ -290,8 +216,7 @@ final class CanvasViewController: UIViewController {
                               width: canvasWidth,
                               height: canvasHeight)
         }
-        
-//        transparencyView.frame = bitmapView.frame
+        navigationItem.rightBarButtonItems = [extrasButton, redoButton, undoButton]
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -311,17 +236,17 @@ extension CanvasViewController {
 
     private var layerViewHeirarchy: [UIView] {
         [transparencyView,
-         onionView,
          bitmapView,
+         onionView,
          previewView,
          gridView,
          gestureView]
     }
     
     private var buttonHeirarchy: [UIButton] {
-        [pencilButton,
+        [         selectionButton,
+pencilButton,
          lineButton,
-//         selectionButton,
          rectangleButton,
          rectangleFillButton,
          circleButton,
@@ -350,7 +275,7 @@ extension CanvasViewController: ColorSelectionDelegate {
     }
     
     func didChangeColors(_ strokeColor: UIColor, _ fillColor: UIColor) {
-        self.strokeColor = Color(uiColor: strokeColor)
+//        self.strokeColor = Color(uiColor: strokeColor)
     }
 }
 
@@ -358,12 +283,13 @@ extension CanvasViewController: PaletteDelegate {
     
     func didSelectColor(_ color: Color) {
         strokeColor = color//.uiColor
-        colorSelectionView.strokeColor = UIColor(red: CGFloat(color.r)/255.0, green: CGFloat(color.g)/255.0, blue: CGFloat(color.b)/255.0, alpha: CGFloat(color.a)/255.0)
+//        colorSelectionView.strokeColor = UIColor(red: CGFloat(color.r)/255.0, green: CGFloat(color.g)/255.0, blue: CGFloat(color.b)/255.0, alpha: CGFloat(color.a)/255.0)
     }
     
     func didPressPlusButton() {
         let vc = UIColorPickerViewController()
         vc.delegate = self
+        vc.supportsAlpha = false
         navigationController?.present(vc, animated: true)
     }
 }
@@ -371,12 +297,27 @@ extension CanvasViewController: PaletteDelegate {
 extension CanvasViewController: UIColorPickerViewControllerDelegate {
     
     func colorPickerViewController(_ viewController: UIColorPickerViewController, didSelect color: UIColor, continuously: Bool) {
+//        print("continuously: \(continuously)")
+        temporaryColorSelection = color
 //        print(color.rgbaSafe)
 //        let color = Color(r: UInt8(color.rgbaSafe.red), g: UInt8(color.rgbaSafe.green), b: UInt8(color.rgbaSafe.blue), a: UInt8(color.rgbaSafe.alpha))
-        let color = Color(uiColor: color)
-        if continuously == false, !paletteViewController.palette.colors.contains(color) {
-            paletteViewController.palette.colors.append(color)
-            paletteViewController.collectionView.reloadData()
+//        let color = Color(uiColor: color)
+//        if continuously == false, !paletteViewController.palette.colors.contains(color) {
+//            viewController.dismiss(animated: true, completion: nil)
+//            paletteViewController.palette.colors.append(color)
+//            paletteViewController.collectionView.reloadData()
+//        }
+    }
+    
+    func colorPickerViewControllerDidFinish(_ viewController: UIColorPickerViewController) {
+        if let selection = temporaryColorSelection {
+            let color = Color(uiColor: selection)
+            temporaryColorSelection = nil
+        
+            if !paletteViewController.palette.contains(color) {
+                paletteViewController.palette.append(color)
+                paletteViewController.collectionView.reloadData()
+            }
         }
     }
 }
@@ -385,10 +326,10 @@ extension CanvasViewController: UIColorPickerViewControllerDelegate {
 extension CanvasViewController {
 
     private func configureButtons() {
-        let newicon = UIImage(bitmap: Icon.pencil)
+//        let pencilImage = UIImage(bitmap: Icon.pencil)
 
-//        let pencilImage = UIImage(systemName: "paintbrush.pointed")
-        pencilButton.setImage(newicon, for: .normal)
+        let pencilImage = UIImage(systemName: "paintbrush.pointed")
+        pencilButton.setImage(pencilImage, for: .normal)
         pencilButton.addTarget(self, action: #selector(togglePencil), for: .touchUpInside)
         pencilButton.isSelected = true
         
@@ -396,7 +337,7 @@ extension CanvasViewController {
         lineButton.setImage(lineImage, for: .normal)
         lineButton.addTarget(self, action: #selector(toggleLine), for: .touchUpInside)
 
-        let selectionImage = UIImage(systemName: "rectangle.dashed")
+        let selectionImage = UIImage(systemName: "cursorarrow.and.square.on.square.dashed")
         selectionButton.setImage(selectionImage, for: .normal)
         selectionButton.addTarget(self, action: #selector(toggleSelection), for: .touchUpInside)
         
@@ -434,11 +375,10 @@ extension CanvasViewController {
         fillButton.setImage(fillButtonImage, for: .normal)
         fillButton.addTarget(self, action: #selector(toggleFill), for: .touchUpInside)
 
-        navigationItem.rightBarButtonItems = [extrasButton, redoButton, undoButton]
     }
     
     private func exportPng(_ action: UIAction) {
-        let image = UIImage(bitmap: bitmap.scaled(32))
+        let image = UIImage(bitmap: bitmap)//.scaled(32))
         if let data = image?.pngData() {
             let activityController = UIActivityViewController(activityItems: [data], applicationActivities: nil)
             self.present(activityController, animated: true, completion: nil)
@@ -449,16 +389,8 @@ extension CanvasViewController {
         let stringData = Data(bitmap.svg.utf8)
         let uniqueRandomName = String(UUID().uuidString.suffix(4))
         let svgURL = stringData.toFile(fileName: "\(uniqueRandomName).svg")
-//        if let url = URL(string: bitmap.svg) {
-//            url.path
-//            url.pathExtension = ".svg"
-            let activityController = UIActivityViewController(activityItems: [svgURL], applicationActivities: nil)
-            present(activityController, animated: true, completion: nil)
-//        }
-
-//        let text = bitmap.svg
-//        print("\n\(text)\n")
-
+        let activityController = UIActivityViewController(activityItems: [svgURL], applicationActivities: nil)
+        present(activityController, animated: true, completion: nil)
     }
 
     private func exportCode(_ action: UIAction) {
@@ -489,11 +421,11 @@ extension CanvasViewController {
             circleButton.isSelected = true
         case .fill:
             fillButton.isSelected = true
-        case .none:
+        case .none, .move:
             break
         }
         
-        canvasView.isUserInteractionEnabled = selectedTool != .none
+//        canvasView.isUserInteractionEnabled = selectedTool != .none
     }
     
     @objc private func togglePencil() {
@@ -575,6 +507,18 @@ extension CanvasViewController {
 // Menus
 extension CanvasViewController {
     
+    private var extrasButton: UIBarButtonItem {
+        UIBarButtonItem(title: "Extras", image: UIImage(systemName: "ellipsis.circle"), primaryAction: nil, menu: extrasMenu)
+    }
+    
+    private var extrasMenu: UIMenu {
+        UIMenu(title: "", children: [gridMenu, previewMenu, exportMenu])
+    }
+    
+    private var gridMenu: UIMenu {
+        UIMenu(title: "Grid Settings", image: UIImage(systemName: "grid"/*"squareshape.split.3x3"*/), options: .displayInline, children: [showGridAction, invertGridAction])
+    }
+    
     private var showGridAction: UIAction {
         UIAction(title: "Show grid", image: UIImage(systemName: "eye"), state: showGrid ? .on : .off) { _ in
             self.showGrid.toggle()
@@ -586,36 +530,51 @@ extension CanvasViewController {
             self.invertGrid.toggle()
         }
     }
-    
-    private var gridMenu: UIMenu {
-        UIMenu(title: "Grid Settings", image: UIImage(systemName: "grid"/*"squareshape.split.3x3"*/), options: .displayInline, children: [showGridAction, invertGridAction])
-    }
-    
-    private var previewMenu: UIMenu {
-        UIMenu(title: "Preview Layer", image: UIImage(systemName: "rectangle.dashed.and.paperclip"), options: .displayInline, children: [
-            UIAction(title: "Add image", image: UIImage(systemName: "photo.on.rectangle"), handler: { _ in }),
-            UIAction(title: "Add drawing", image: UIImage(systemName: "squareshape.split.3x3"), handler: { _ in
-                // Test
-                self.onionImage = self.onionImage == nil ? UIImage(named: "px101") : nil
-            })
 
-       ])
+    private var previewMenu: UIMenu {
+        let importDrawing = UIAction(title: "Import drawing", image: UIImage(systemName: "square.on.circle"), handler: { _ in
+            let vc = BitmapsCollectionViewController()
+            vc.didSelect = { bitmap in
+                self.onionImage = UIImage(bitmap: bitmap)
+                vc.dismiss(animated: true, completion: nil)
+                self.navigationItem.rightBarButtonItems = [self.extrasButton, self.redoButton, self.undoButton] // Update button state
+            }
+            self.present(vc, animated: true)
+        })
+        let importPhoto = UIAction(title: "Import photo", image: UIImage(systemName: "photo.on.rectangle"), handler: { _ in
+            if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
+                var imagePicker = UIImagePickerController()
+                imagePicker.delegate = self
+                imagePicker.sourceType = .photoLibrary;
+                self.present(imagePicker, animated: true)
+            } else {
+                print("???")
+            }
+        })
+        let removeOnion = UIAction(title: "Remove preview layer", image: UIImage(systemName: "trash"), handler: { _ in
+            self.onionView.image = nil
+            self.navigationItem.rightBarButtonItems = [self.extrasButton, self.redoButton, self.undoButton] // Update button state
+        })
+        let actions = onionView.image == nil ? [importDrawing, importPhoto] : [removeOnion]
+        return UIMenu(title: "Preview Layer", image: UIImage(systemName: "rectangle.dashed.and.paperclip"), options: .displayInline, children: actions)
     }
     
     private var exportMenu: UIMenu {
         UIMenu(title: "Export", image: UIImage(systemName: "arrow.up.doc.on.clipboard"), children: [
            UIAction(title: ".png", image: UIImage(systemName: "photo"), handler: exportPng),
            UIAction(title: ".svg",  image: UIImage(systemName: "square.on.circle"), handler: exportSvg),
-           UIAction(title: ".swift",  image: UIImage(systemName: "square.on.circle"), handler: exportCode),
        ])
     }
-    
-    private var extrasMenu: UIMenu {
-        UIMenu(title: "", children: [gridMenu, previewMenu, exportMenu])
-    }
-    
-    private var extrasButton: UIBarButtonItem {
-        UIBarButtonItem(title: "Extras", image: UIImage(systemName: "ellipsis.circle"), primaryAction: nil, menu: extrasMenu)
+}
+
+extension CanvasViewController: UIImagePickerControllerDelegate {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        guard let image = info[.originalImage] as? UIImage else { return }
+
+        onionView.image = image
+        onionView.layer.magnificationFilter = .nearest
+        picker.dismiss(animated: true)
+        self.navigationItem.rightBarButtonItems = [self.extrasButton, self.redoButton, self.undoButton] // Update button state
     }
 }
 
@@ -636,9 +595,11 @@ extension CanvasViewController: GestureViewDelegate {
     }
     
     func updateLayer(at indexes: [Int]) {
+        guard indexes.isNotEmpty else { return }
         let oldBitmap = bitmap
         bitmap.changeColor(strokeColor, at: indexes)
         bitmapDidChange(from: oldBitmap)
+        Storage().saveBitmap(bitmap)
     }
     
     func didTap(at index: Int) {
@@ -647,12 +608,14 @@ extension CanvasViewController: GestureViewDelegate {
         case .fill:
             indexes = fill(with: strokeColor, at: index, in: bitmap)
         case .none:
+            previewView.layer.sublayers?.removeAll()
             return
         default:
             indexes = [index]
         }
-        updateLayer(at: indexes)
-        Storage().saveBitmap(bitmap)
+        if indexes.isNotEmpty {
+            updateLayer(at: indexes)
+        }
     }
 
     func didBeginDragging(at index: Int) {
@@ -660,15 +623,25 @@ extension CanvasViewController: GestureViewDelegate {
 
         let indexes: [Int]
         switch selectedTool {
+        case .move:
+            previewView.layer.sublayers?.removeAll()
+            var previewBitmap = Bitmap(width: bitmap.width, pixels: Array(repeating: Color.clear, count: bitmap.pixels.count))
+            if let selectionArea = selectionArea {
+                let x = (index % bitmap.width) - (selectionArea.width / 2)
+                let y = (index / bitmap.width) - (selectionArea.height / 2)
+                previewBitmap = previewBitmap.insert(newBitmap: selectionArea, at: x, y: y)
+            }
+            previewView.image = UIImage(bitmap: previewBitmap)
+            return
         case .line:
             indexes = lineIndexSet(firstIndex: gestureView.touchDownIndex, secondIndex: index, arrayWidth: bitmap.width)
         case .circle:
             return
-//            indexes = circularIndexSet(initialIndex: gestureView.touchDownIndex, currentIndex: index, arrayWidth: bitmap.width)
         case .selection:
-            isSelecting.toggle()
-            strokeColor = Color(r: 255, g: 200, b: 200, a: 127)
-            indexes = rectangularIndexSet(initialIndex: gestureView.touchDownIndex, currentIndex: index, arrayWidth: bitmap.width)
+            indexes = rectangularFillIndexSet(initialIndex: gestureView.touchDownIndex, currentIndex: index, arrayWidth: bitmap.width)
+            drawSelection(around: indexes, width: bitmap.width)
+            lastDragIndex = index
+            return
         case .rectangle:
             indexes = rectangularIndexSet(initialIndex: gestureView.touchDownIndex, currentIndex: index, arrayWidth: bitmap.width)
         case .rectangleFill:
@@ -678,10 +651,10 @@ extension CanvasViewController: GestureViewDelegate {
             indexes = dragIndexes
         case .fill:
             indexes = fill(with: strokeColor, at: index, in: bitmap)
-//            indexes = floodFill(index: index, arrayWidth: bitmap.width, newColor: strokeColor, oldColor: bitmap.pixels[index], data: bitmap.pixels)
             updateLayer(at: indexes)
             return
         case .none:
+            previewView.layer.sublayers?.removeAll()
             return
         }
         
@@ -693,14 +666,31 @@ extension CanvasViewController: GestureViewDelegate {
     func isDragging(at index: Int) {
         let indexes: [Int]
         switch selectedTool {
+        case .move:
+            var previewBitmap = Bitmap(width: bitmap.width, pixels: Array(repeating: Color.clear, count: bitmap.pixels.count))
+            if let selectionArea = selectionArea {
+                let x = (index % bitmap.width) - (selectionArea.width / 2)
+                let y = (index / bitmap.width) - (selectionArea.height / 2)
+                
+//                bitmap = bitmap.insert(newBitmap: selectionArea, at: x, y: y)
+                previewBitmap = previewBitmap.insert(newBitmap: selectionArea, at: x, y: y)
+            }
+            previewView.image = UIImage(bitmap: previewBitmap)
+            return
         case .line:
             indexes = lineIndexSet(firstIndex: gestureView.touchDownIndex, secondIndex: index, arrayWidth: bitmap.width)
         case .circle:
             indexes = drawCircle(at: gestureView.touchDownIndex, to: index, in: bitmap)
-
-//            indexes = circularIndexSet(initialIndex: gestureView.touchDownIndex, currentIndex: index, arrayWidth: bitmap.width)
         case .selection:
-            indexes = rectangularIndexSet(initialIndex: gestureView.touchDownIndex, currentIndex: index, arrayWidth: bitmap.width)
+//            strokeColor = Color(r: 255, g: 255, b: 255, a: 128)
+            indexes = rectangularFillIndexSet(initialIndex: gestureView.touchDownIndex, currentIndex: index, arrayWidth: bitmap.width)
+            drawSelection(around: indexes, width: bitmap.width)
+            lastDragIndex = index
+            return
+//            let sectionWidth = horizontalDistance(from: gestureView.touchDownIndex, to: index, width: bitmap.width)
+//            print(sectionWidth)
+//            let section = Bitmap(width: sectionWidth, pixels: indexes.map { bitmap.pixels[$0] })
+//            print(section)
         case .rectangle:
             indexes = rectangularIndexSet(initialIndex: gestureView.touchDownIndex, currentIndex: index, arrayWidth: bitmap.width)
         case .rectangleFill:
@@ -721,13 +711,34 @@ extension CanvasViewController: GestureViewDelegate {
     func didEndDragging(at index: Int) {
         let indexes: [Int]
         switch selectedTool {
+        case .move:
+            var previewBitmap = Bitmap(width: bitmap.width, pixels: Array(repeating: Color.clear, count: bitmap.pixels.count))
+            if let selectionArea = selectionArea {
+                let oldBitmap = bitmap
+                
+                let x = (index % bitmap.width) - (selectionArea.width / 2)
+                let y = (index / bitmap.width) - (selectionArea.height / 2)
+                
+                bitmap = bitmap.insert(newBitmap: selectionArea, at: x, y: y)
+                bitmapDidChange(from: oldBitmap)
+                Storage().saveBitmap(bitmap)
+            }
+            selectedTool = .none
+            previewView.image = UIImage()
+            return
         case .line:
             indexes = lineIndexSet(firstIndex: gestureView.touchDownIndex, secondIndex: index, arrayWidth: bitmap.width)
         case .circle:
             indexes = drawCircle(at: gestureView.touchDownIndex, to: index, in: bitmap)
-//            indexes = circularIndexSet(initialIndex: gestureView.touchDownIndex, currentIndex: index, arrayWidth: bitmap.width)
         case .selection:
-            indexes = rectangularIndexSet(initialIndex: gestureView.touchDownIndex, currentIndex: index, arrayWidth: bitmap.width)
+            indexes = rectangularFillIndexSet(initialIndex: gestureView.touchDownIndex, currentIndex: index, arrayWidth: bitmap.width)
+            lastDragIndex = index
+            drawSelection(around: indexes, width: bitmap.width)
+            selectedTool = .move
+            let selectionWidth = horizontalDistance(from: gestureView.touchDownIndex, to: index, width: bitmap.width)
+            selectionArea = Bitmap(width: selectionWidth + 1, pixels: indexes.map { bitmap.pixels[$0] })
+//            previewView.image = UIImage(bitmap: selection)
+            return
         case .rectangle:
             indexes = rectangularIndexSet(initialIndex: gestureView.touchDownIndex, currentIndex: index, arrayWidth: bitmap.width)
         case .rectangleFill:
@@ -740,12 +751,51 @@ extension CanvasViewController: GestureViewDelegate {
         case .none:
             return
         }
+        lastDragIndex = index
         if selectedTool != .selection {
             updateLayer(at: indexes)
+            previewView.image = UIImage()
         }
-        lastDragIndex = index
-        previewView.image = UIImage()
-        Storage().saveBitmap(bitmap)
+    }
+    
+    func drawSelection(around indexes: [Int], width: Int) {
+//        previewView.layer.removeAllAnimations()
+        previewView.layer.sublayers?.removeAll()
+
+        let width = horizontalDistance(from: gestureView.touchDownIndex, to: lastDragIndex, width: bitmap.width) + 1
+        let height = verticalDistance(from: gestureView.touchDownIndex, to: lastDragIndex, width: bitmap.width) + 1
+
+        var canvasWidth = layoutGuide.layoutFrame.maxX - layoutGuide.layoutFrame.minX
+        var canvasHeight = canvasWidth
+        let pixelWidth = canvasWidth / CGFloat(bitmap.width)
+        let pixelHeight = canvasHeight / CGFloat(bitmap.height)
+        
+        let sorted = indexes.sorted()
+        let first = sorted.first ?? 0
+        let x = CGFloat(first % bitmap.width) * pixelWidth
+        let y = CGFloat(first / bitmap.width) * pixelWidth
+        
+        let layer = CAShapeLayer()
+        let bounds = CGRect(x: x, y: y,
+                            width: pixelWidth * CGFloat(width),
+                            height: pixelWidth * CGFloat(height))
+//        layer.path = UIBezierPath(roundedRect: bounds, byRoundingCorners: .allCorners, cornerRadii: CGSize(width: 20, height: 20)).cgPath
+        layer.path = UIBezierPath(rect: bounds).cgPath
+        layer.strokeColor = UIColor.green.cgColor
+        layer.fillColor = nil
+        layer.lineDashPattern = [8, 6]
+        previewView.layer.addSublayer(layer)
+
+//        previewView.image = img
+        
+        let animation = CABasicAnimation(keyPath: "lineDashPattern")
+        animation.fromValue = 0
+        animation.toValue = layer.lineDashPattern?.reduce(0) { $0 - $1.intValue } ?? 0
+        animation.duration = 1
+        animation.repeatCount = .infinity
+        DispatchQueue.main.async {
+            self.previewView.layer.add(animation, forKey: "line")
+        }
     }
 }
 
@@ -789,36 +839,84 @@ extension CanvasViewController: UIScrollViewDelegate {
 //        print("\n")
     }
 }
-
-func svgPrefix(width: Int, height: Int) -> String {
-    """
-      <svg viewBox=\"0 0 \(width) \(height)\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">
-      <rect width=\"\(width)\" height=\"\(height)\" fill=\"#000100\"/>
-    """
-}
-
-func svgRects(bitmap: Bitmap) -> [String] {
-    bitmap.pixels.enumerated().map { i, color in
-        "<rect fill=\"rgb(\(color.r),\(color.g),\(color.b))\" " +
-        "x=\"\(i % bitmap.width)px\" y=\"\(i / bitmap.height)px\" " +
-        "width=\"1.05\" height=\"1.05\" " +
-        "opacity=\"\(Float(color.a / 255))\"/>"
-    }
-}
+/*
+<svg id="mouse-svg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 24 24">
+  <rect class="c00" x="11" y="7"/>
+ <style>
+   rect{width:1px;height:1px;} #mouse-svg{shape-rendering: crispedges;} .c00{fill:#000000}.c01{fill:#B1ADAC}.c02{fill:#D7D7D7}
+ </style>
+</svg>
+*/
 
 extension Bitmap {
     var svg: String {
-        svgPrefix(width: width, height: height) +
-        svgRects(bitmap: self)
-            .joined(separator: "") +
-        "</svg>"
+        let prefix = "<svg id=\"px101\" xmlns=\"http://www.w3.org/2000/svg\" preserveAspectRatio=\"xMinYMin meet\" viewBox=\"0 0 \(width) \(height)\">"
+        /// Count the number of times a color occurs. The most populous color is used for the background. Ideally the user selects this color
+        
+        let uniqueColors = Set(pixels)
+        var bgColor: Color = .white // We will overwrite this
+        
+        var colorOccuranceDictionary: [Color: Int] = [:]
+        uniqueColors.forEach {
+            colorOccuranceDictionary[$0] = 0
+        }
+        for pixel in pixels {
+            if let value = colorOccuranceDictionary[pixel] {
+                colorOccuranceDictionary[pixel] = value + 1
+            }
+        }
+
+        if let (color, _) = colorOccuranceDictionary.max(by: {$0.1 < $1.1}) {
+            bgColor = color
+        }
+        
+        var colorDictionary: [Color: Int] = [:]
+        uniqueColors.enumerated().forEach { index, color in
+            colorDictionary[color] = index
+        }
+        let pixelRects = pixels
+            .enumerated()
+            .filter { $0.element != bgColor }
+            .map { index, color in
+                "<rect class=\"c\(colorDictionary[color]!)\" x=\"\(index % width)\" y=\"\(index / height)\"/>"
+            }
+            .joined()
+        
+        let bgRect = "<polygon points =\"0,0 0,\(width) \(width),\(height) \(width),0\" fill=\"#\(bgColor.hex)\"/>"
+        let stylePrefix = "<style>rect{width:1px;height:1px;} #px101{shape-rendering: crispedges;} "
+
+        let colors = colorDictionary.map { color, index in
+            ".c\(index){fill:#\(color.hex)}"
+        }.joined()
+        return prefix + bgRect + pixelRects + stylePrefix + colors + "</style>" + "</svg>"
     }
 }
+
+//func svgPrefix(width: Int, height: Int) -> String {
+//    "<svg viewBox=\"0 0 \(width) \(height)\" xmlns=\"http://www.w3.org/2000/svg\">"
+//}
+//
+//func svgRects(bitmap: Bitmap) -> [String] {
+//    bitmap.pixels.enumerated().map { i, color in
+//        let colorString = color == .black ? "" : "fill=\"#\(color.hex)\""
+//        return "<path \(colorString) d=\"M\(i % bitmap.width) \(i / bitmap.height)h1.1v1.1H\(i % bitmap.width)z\"/>"
+//    }
+//}
+//
+//extension Bitmap {
+//    var svg: String {
+//        svgPrefix(width: width, height: height) +
+//        svgRects(bitmap: self)
+//            .joined(separator: "") +
+//        "</svg>"
+//    }
+//}
 
 enum Direction {
     case up, down, left, right
 }
 
+/*
 func paths(for bitmap: Bitmap) -> String {
     let pixels = bitmap.pixels
     
@@ -876,7 +974,7 @@ func paths(for bitmap: Bitmap) -> String {
     s += "</svg>"
     return s
 }
-
+*/
 extension Data {
     /// Data into file
     ///
@@ -896,3 +994,83 @@ extension Data {
         return nil
     }
 }
+
+enum DrawingTool {
+    case pencil, line, selection, rectangle, rectangleFill, circle, fill, none, move // move is not user selectable, but a selection state
+}
+
+//extension DrawingTool {
+//    var bitmap: Bitmap {
+//        switch self {
+//        case .pencil:
+//            return Bitmap(width: 24, pattern: [])
+//        case .line:
+//            return Bitmap(width: 24, pattern: [])
+//        case .rectangle:
+//            return Bitmap(width: 24, pattern: [])
+//        case .circle:
+//            return Bitmap(width: 24, pattern: [])
+//        case .fill:
+//            return Bitmap(width: 24, pattern: [])
+//        }
+//    }
+//}
+
+protocol ColorSelectionDelegate: AnyObject {
+    func didChangeColors(_ strokeColor: UIColor, _ fillColor: UIColor)
+}
+/*
+
+final class ColorSelectionView: UIView {
+    
+    weak var delegate: ColorSelectionDelegate? = nil
+    
+    var strokeColor: UIColor {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
+    
+    var fillColor: UIColor {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
+    
+    init(strokeColor: UIColor, fillColor: UIColor, frame: CGRect) {
+        self.strokeColor = strokeColor
+        self.fillColor = fillColor
+        super.init(frame: frame)
+        backgroundColor = .clear
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func draw(_ rect: CGRect) {
+        guard let context = UIGraphicsGetCurrentContext() else { return }
+        context.setStrokeColor(UIColor.label.cgColor)
+        context.setFillColor(fillColor.cgColor)
+        let strokeRect = CGRect(x: 0, y: 0, width: rect.width * 0.75, height: rect.height * 0.75)
+        let fillRect = CGRect(x: rect.width * 0.25, y: rect.width * 0.25, width: rect.width * 0.75, height: rect.height * 0.75)
+        
+        
+        context.setFillColor(fillColor.cgColor)
+        context.addRect(fillRect)
+        context.drawPath(using: .fillStroke)
+        context.setFillColor(strokeColor.cgColor)
+        context.addRect(strokeRect)
+        context.drawPath(using: .fillStroke)
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesEnded(touches, with: event)
+        let oldStroke = strokeColor
+        let oldFill = fillColor
+        strokeColor = oldFill
+        fillColor = oldStroke
+        delegate?.didChangeColors(strokeColor, fillColor)
+    }
+}
+*/

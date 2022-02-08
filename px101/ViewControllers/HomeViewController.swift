@@ -78,7 +78,6 @@ final class HomeViewController: UIViewController {
         NSLayoutConstraint.activate([
             logo.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             logo.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-//            logo.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor, constant: 32),
             logo.widthAnchor.constraint(equalToConstant: view.frame.width - 32),
             logo.heightAnchor.constraint(equalToConstant: 64),
             
@@ -106,6 +105,8 @@ func intsToColor(_ ints: [Int], strokeColor: Color) -> [Color] {
 
 func stitch(_ bitmap: Bitmap, to secondBitmap: Bitmap, orientation: Direction = .right) -> Bitmap {
 
+    if bitmap.pixels.isEmpty { return secondBitmap }
+    
     var i = 0
     var x = 0
     var y = 0

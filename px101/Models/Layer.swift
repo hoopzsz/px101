@@ -17,13 +17,14 @@ extension ColoringDelegate {
     }
 }
 
-//let x = Data(bina)
 struct Bitmap: Codable, Identifiable {
     
     var id = UUID()
     
     let width: Int
     var pixels: [Color]
+    
+    var palette: [Color] = []
     
     var height: Int {
         pixels.count / width
@@ -46,33 +47,40 @@ struct Bitmap: Codable, Identifiable {
         self.id = id
         self.width = width
         self.pixels = try! JSONDecoder().decode([Color].self, from: data)
+        self.palette = Array(Set(pixels))
     }
     
     init(id: UUID, width: Int, data: Data) {
         self.id = id
         self.width = width
         self.pixels = try! JSONDecoder().decode([Color].self, from: data)
+        self.palette = Array(Set(pixels))
     }
     
     init(id: UUID, width: Int, pixels: [Color]) {
         self.id = id
         self.width = width
         self.pixels = pixels
+        self.palette = Array(Set(pixels))
     }
     
     init(width: Int, pixels: [Color]) {
         self.width = width
         self.pixels = pixels
+        self.palette = Array(Set(pixels))
     }
     
     init(width: Int, height: Int, color: Color) {
         self.width = width
         pixels = Array(repeating: color, count: width * height)
+        self.palette = Array(Set(pixels))
+        
     }
     
     init(width: Int, binary: [Int], stroke: Color = .white, fill: Color = .clear) {
         self.width = width
         self.pixels = binary.map { $0 == 1 ? stroke : fill }
+        self.palette = Array(Set(pixels))
     }
 
     subscript(x: Int, y: Int) -> Color {
@@ -81,7 +89,6 @@ struct Bitmap: Codable, Identifiable {
     }
     
     func insert(newBitmap: Bitmap, at x: Int, y: Int) -> Bitmap {
-//        let bitmapWidth = bitmap.width + x > width ? bitmap.width - x : bitmap.width
         var copy = self
 
         let top = y < 0 ? abs(y) : 0
@@ -109,6 +116,11 @@ struct Bitmap: Codable, Identifiable {
 
         return copy
     }
+    
+    ///
+//    func removeSection(at: [Int], width: Int) -> Bitmap {
+//        let newBitmap = Bitmap(width: width, pixels: <#T##[Color]#>)
+//    }
     
     func cropped(top: Int = 0, bottom: Int = 0, left: Int = 0, right: Int = 0) -> Bitmap {
         var copy = self
@@ -153,8 +165,7 @@ struct Bitmap: Codable, Identifiable {
             width -= 1
             r += 1
         }
-//        self.height = height
-//        self.width = width
+
         return Bitmap(id: copy.id, width: width, pixels: copy.pixels)
     }
 }
@@ -250,5 +261,12 @@ extension Bitmap {
         validIndexes.forEach { i in
             pixels[i] = color
         }
+    }
+}
+
+extension Bitmap {
+    /// Improves the readibility of assembling together multiple bitmaps into textual repressentations
+    static var initial: Bitmap {
+        Bitmap(width: 0, pixels: [])
     }
 }

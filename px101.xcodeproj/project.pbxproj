@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A349685E27ADCD7D0072E7D3 /* BitmapsCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A349685D27ADCD7D0072E7D3 /* BitmapsCollectionViewController.swift */; };
 		A362D6F12750C8AE00117B65 /* Layer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A362D6DE2750C8AE00117B65 /* Layer.swift */; };
 		A362D6F22750C8AE00117B65 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = A362D6DF2750C8AE00117B65 /* Color.swift */; };
 		A362D6F32750C8AE00117B65 /* ProjectsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A362D6E12750C8AE00117B65 /* ProjectsViewController.swift */; };
@@ -49,6 +50,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A349685D27ADCD7D0072E7D3 /* BitmapsCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitmapsCollectionViewController.swift; sourceTree = "<group>"; };
 		A362D6DE2750C8AE00117B65 /* Layer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Layer.swift; sourceTree = "<group>"; };
 		A362D6DF2750C8AE00117B65 /* Color.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
 		A362D6E12750C8AE00117B65 /* ProjectsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectsViewController.swift; sourceTree = "<group>"; };
@@ -115,6 +117,7 @@
 		A362D6E02750C8AE00117B65 /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
+				A349685D27ADCD7D0072E7D3 /* BitmapsCollectionViewController.swift */,
 				A362D6E12750C8AE00117B65 /* ProjectsViewController.swift */,
 				A362D6E22750C8AE00117B65 /* NewProjectViewController.swift */,
 				A362D6E32750C8AE00117B65 /* HomeViewController.swift */,
@@ -345,6 +348,7 @@
 				A362D6F12750C8AE00117B65 /* Layer.swift in Sources */,
 				A362D6FC2750C8AE00117B65 /* PixelView.swift in Sources */,
 				A362D7002750C8AE00117B65 /* ShapeTools.swift in Sources */,
+				A349685E27ADCD7D0072E7D3 /* BitmapsCollectionViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
