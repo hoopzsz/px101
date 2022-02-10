@@ -74,6 +74,28 @@ final class BitmapsCollectionViewController: UIViewController, NSFetchedResultsC
             print("Fetch failed")
         }
     }
+    
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        
+//        collectionView.translatesAutoresizingMaskIntoConstraints = false
+//        NSLayoutConstraint.activate([
+//            collectionView.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
+//            collectionView.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
+//            collectionView.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor),
+//            collectionView.bottomAnchor.constraint(equalTo: view.layoutMarginsGuide.bottomAnchor),
+//        ])
+    }
+    
+//    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+//        collectionView.frame = CGRect(x: 0, y: 0, width: size.width, height: size.height)
+//        NSLayoutConstraint.activate([
+//            collectionView.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
+//            collectionView.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
+//            collectionView.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor),
+//            collectionView.bottomAnchor.constraint(equalTo: view.layoutMarginsGuide.bottomAnchor),
+//        ])
+//    }
 }
 
 extension BitmapsCollectionViewController: UICollectionViewDataSource {
@@ -90,8 +112,6 @@ extension BitmapsCollectionViewController: UICollectionViewDataSource {
         if let bitmap = Bitmap(obj: bitmapObj) {
             cell.setBitmap(bitmap)
         }
-//        cell.layer.borderWidth = 1
-//        cell.layer.borderColor = UIColor.label.cgColor
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -128,16 +148,3 @@ extension BitmapsCollectionViewController: UICollectionViewDelegate {
         }
     }
 }
-
-//extension BitmapsCollectionViewController: UICollectionViewDelegateFlowLayout {
-//
-//    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-////        UIEdgeInsets(top: 32, left: 32, bottom: 32, right: 32)
-//    }
-//
-//    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-////        CGSize(width: 96, height: 96)
-//        layout.itemSize = CGSize(width: screenWidth/3, height: screenWidth/3)
-//
-//    }
-//}

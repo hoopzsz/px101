@@ -105,13 +105,41 @@ final class ProjectsViewController: UIViewController, NSFetchedResultsController
         navigationItem.titleView = imageView
     }
     
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        
+        containerView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.view.translatesAutoresizingMaskIntoConstraints = false
+        
+        let leadingAnchor = view.frame.size.width > view.frame.size.height ? view.layoutMarginsGuide.leadingAnchor : view.leadingAnchor
+        NSLayoutConstraint.activate([
+            containerView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            containerView.topAnchor.constraint(equalTo: view.topAnchor),
+            containerView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ])
+    }
+    
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+//        containerView.frame = CGRect(x: 0, y: 0, width: size.width, height: size.height)
+//        collectionView.view.frame = containerView.frame
+        
+        let leadingAnchor = size.width > size.height ? view.layoutMarginsGuide.leadingAnchor : view.leadingAnchor
+        NSLayoutConstraint.activate([
+            containerView.leadingAnchor.constraint(equalTo: leadingAnchor),
+//            containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+//            containerView.topAnchor.constraint(equalTo: view.topAnchor),
+//            containerView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ])
+    }
+    
     @objc private func addArtworkButtonPressed() {
         let vc = NewProjectViewController()
         navigationController?.pushViewController(vc, animated: true)
     }
     
     private func addCollectionView() {
-        containerView.translatesAutoresizingMaskIntoConstraints = false
+//        containerView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(containerView)
         
         collectionView.view.frame = containerView.frame

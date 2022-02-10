@@ -21,12 +21,11 @@ final class CanvasViewController: UIViewController, UINavigationControllerDelega
     private let gridView: StrokeGridView
     private let gestureView: GestureView
     
-    private let zoomLabel = UIImageView()
+    private let fileSizeLabel = UIImageView()
 
     // Palette
     private let paletteContainerView = UIView(frame: .zero)
     private var paletteViewController: PaletteViewController!
-//    private var palette: Palette = .default
 
     // Top buttons
     private var undoButton: UIBarButtonItem!
@@ -62,7 +61,7 @@ final class CanvasViewController: UIViewController, UINavigationControllerDelega
     private var showGrid = true {
         didSet {
             gridView.isHidden.toggle()
-            navigationItem.rightBarButtonItems = [extrasButton, redoButton, undoButton]
+            updateBarButtons()
         }
     }
     
@@ -73,7 +72,7 @@ final class CanvasViewController: UIViewController, UINavigationControllerDelega
                 showGrid = true
                 return
             }
-            navigationItem.rightBarButtonItems = [extrasButton, redoButton, undoButton]
+            updateBarButtons()
         }
     }
     
@@ -100,15 +99,21 @@ final class CanvasViewController: UIViewController, UINavigationControllerDelega
             bitmapView.backgroundColor = .clear
             bitmapView.contentMode = .scaleAspectFit
             bitmapView.layer.magnificationFilter = .nearest
+            bitmapView.layer.magnificationFilter = .nearest
         }
+        
+        fileSizeLabel.contentMode = .center
+        fileSizeLabel.backgroundColor = .clear
+        fileSizeLabel.layer.magnificationFilter = .nearest
+        fileSizeLabel.translatesAutoresizingMaskIntoConstraints = false
                 
         let transparencyBitmap = Bitmap.transparencyIndicator(of: bitmap.width, height: bitmap.height)
         transparencyView.image = UIImage(bitmap: transparencyBitmap)
         
         gridView = StrokeGridView(width: bitmap.width, height: bitmap.height)
         gridView.backgroundColor = .clear
+        gridView.isUserInteractionEnabled = false
         gestureView = GestureView(width: bitmap.width, height: bitmap.height, frame: .zero)
-//        self.palette = bitmap.palette
         var palette = bitmap.palette//.sorted(by: { $1.darkLevel > $0.darkLevel }
         if palette.count == 1, palette[0] == .clear {
             palette = [.black, .gray, .white, .red, .orange, .yellow, .blue, .green, .magenta]
@@ -134,6 +139,7 @@ final class CanvasViewController: UIViewController, UINavigationControllerDelega
         view.backgroundColor = .systemBackground
         view.addSubview(transparencyView)
         view.addSubview(scrollview)
+        view.addSubview(fileSizeLabel)
         scrollview.delegate = self
         scrollview.showsVerticalScrollIndicator = true
         scrollview.flashScrollIndicators()
@@ -162,7 +168,6 @@ final class CanvasViewController: UIViewController, UINavigationControllerDelega
         view.addSubview(buttonStack)
         
         gestureView.delegate = self
-//        colorSelectionView.delegate = self
         
         addPaletteViewController()
         
@@ -170,21 +175,23 @@ final class CanvasViewController: UIViewController, UINavigationControllerDelega
         
         bitmapView.layer.borderWidth = 1
         bitmapView.layer.borderColor = UIColor.label.cgColor
-//        bitmapView.layer.backgroundColor = UIColor.tertiarySystemBackground.cgColor
+        
+        fileSizeLabel.tintColor = .red
+        updateSizeLabel()
+        
+//        self.popoverPresentationController?.sourceView = self.view
     }
     
     override func viewWillLayoutSubviews() {
-//        colorSelectionView.translatesAutoresizingMaskIntoConstraints = false
         scrollview.translatesAutoresizingMaskIntoConstraints = false
-        zoomLabel.translatesAutoresizingMaskIntoConstraints = false
 
         var canvasWidth = layoutGuide.layoutFrame.maxX - layoutGuide.layoutFrame.minX
         var canvasHeight = canvasWidth
         let pixelWidth = canvasWidth / CGFloat(bitmap.width)
         let pixelHeight = canvasHeight / CGFloat(bitmap.height)
-//
+
         let difference = abs(bitmap.width - bitmap.height)
-//
+
         if bitmap.width > bitmap.height {
             canvasHeight = canvasHeight - (CGFloat(difference) * pixelWidth)
         } else if bitmap.height > bitmap.width {
@@ -206,6 +213,10 @@ final class CanvasViewController: UIViewController, UINavigationControllerDelega
             scrollview.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollview.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollview.bottomAnchor.constraint(equalTo: buttonStack.topAnchor, constant: -4),
+            
+            fileSizeLabel.topAnchor.constraint(equalTo: layoutGuide.topAnchor, constant: 4),
+            fileSizeLabel.trailingAnchor.constraint(equalTo: layoutGuide.trailingAnchor),
+            fileSizeLabel.heightAnchor.constraint(equalToConstant: 12)
         ])
         
         canvasView.frame = scrollview.bounds
@@ -216,18 +227,43 @@ final class CanvasViewController: UIViewController, UINavigationControllerDelega
                               width: canvasWidth,
                               height: canvasHeight)
         }
-        navigationItem.rightBarButtonItems = [extrasButton, redoButton, undoButton]
+        
+        updateBarButtons()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.interactivePopGestureRecognizer?.isEnabled = false
+        didSelectColor(strokeColor)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         Storage().saveBitmap(bitmap)
+    }
+    
+    private func updateBarButtons() {
+        navigationItem.rightBarButtonItems = [layersButton, extrasButton, redoButton, undoButton]
+    }
+    
+    func updateSizeLabel() {
+        let stringData = Data(bitmap.svg.utf8)
+        let bcf = ByteCountFormatter()
+        bcf.allowedUnits = [.useKB]
+        bcf.countStyle = .memory
+        let string = bcf.string(fromByteCount: Int64(stringData.count))
+        let filesizeCases = fiveSeven.stringToCases(string)
+            .flatMap { [$0, .space] } + [.space, .k]
+        let fileSize = filesizeCases
+            .map { $0.bitmap }
+            .reduce(.initial) { stitch($0, to: $1) }
+        
+        fileSizeLabel.image = UIImage(bitmap: fileSize)?.withTintColor(.red)
     }
 }
 
@@ -244,8 +280,8 @@ extension CanvasViewController {
     }
     
     private var buttonHeirarchy: [UIButton] {
-        [         selectionButton,
-pencilButton,
+        [selectionButton,
+         pencilButton,
          lineButton,
          rectangleButton,
          rectangleFillButton,
@@ -282,8 +318,7 @@ extension CanvasViewController: ColorSelectionDelegate {
 extension CanvasViewController: PaletteDelegate {
     
     func didSelectColor(_ color: Color) {
-        strokeColor = color//.uiColor
-//        colorSelectionView.strokeColor = UIColor(red: CGFloat(color.r)/255.0, green: CGFloat(color.g)/255.0, blue: CGFloat(color.b)/255.0, alpha: CGFloat(color.a)/255.0)
+        strokeColor = color
     }
     
     func didPressPlusButton() {
@@ -297,16 +332,7 @@ extension CanvasViewController: PaletteDelegate {
 extension CanvasViewController: UIColorPickerViewControllerDelegate {
     
     func colorPickerViewController(_ viewController: UIColorPickerViewController, didSelect color: UIColor, continuously: Bool) {
-//        print("continuously: \(continuously)")
         temporaryColorSelection = color
-//        print(color.rgbaSafe)
-//        let color = Color(r: UInt8(color.rgbaSafe.red), g: UInt8(color.rgbaSafe.green), b: UInt8(color.rgbaSafe.blue), a: UInt8(color.rgbaSafe.alpha))
-//        let color = Color(uiColor: color)
-//        if continuously == false, !paletteViewController.palette.colors.contains(color) {
-//            viewController.dismiss(animated: true, completion: nil)
-//            paletteViewController.palette.colors.append(color)
-//            paletteViewController.collectionView.reloadData()
-//        }
     }
     
     func colorPickerViewControllerDidFinish(_ viewController: UIColorPickerViewController) {
@@ -326,8 +352,6 @@ extension CanvasViewController: UIColorPickerViewControllerDelegate {
 extension CanvasViewController {
 
     private func configureButtons() {
-//        let pencilImage = UIImage(bitmap: Icon.pencil)
-
         let pencilImage = UIImage(systemName: "paintbrush.pointed")
         pencilButton.setImage(pencilImage, for: .normal)
         pencilButton.addTarget(self, action: #selector(togglePencil), for: .touchUpInside)
@@ -380,8 +404,12 @@ extension CanvasViewController {
     private func exportPng(_ action: UIAction) {
         let image = UIImage(bitmap: bitmap)//.scaled(32))
         if let data = image?.pngData() {
-            let activityController = UIActivityViewController(activityItems: [data], applicationActivities: nil)
-            self.present(activityController, animated: true, completion: nil)
+            let activityViewController = UIActivityViewController(activityItems: [data], applicationActivities: nil)
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                activityViewController.popoverPresentationController?.sourceView = self.view
+                activityViewController.popoverPresentationController?.sourceRect = CGRect(x: self.view.bounds.maxX, y: 40, width: 0,height: 0)
+            }
+            self.present(activityViewController, animated: true, completion: nil)
         }
     }
 
@@ -389,8 +417,13 @@ extension CanvasViewController {
         let stringData = Data(bitmap.svg.utf8)
         let uniqueRandomName = String(UUID().uuidString.suffix(4))
         let svgURL = stringData.toFile(fileName: "\(uniqueRandomName).svg")
-        let activityController = UIActivityViewController(activityItems: [svgURL], applicationActivities: nil)
-        present(activityController, animated: true, completion: nil)
+        let activityViewController = UIActivityViewController(activityItems: [svgURL], applicationActivities: nil)
+      
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            activityViewController.popoverPresentationController?.sourceView = self.view
+            activityViewController.popoverPresentationController?.sourceRect = CGRect(x: self.view.bounds.maxX, y: 40, width: 0,height: 0)
+        }
+        present(activityViewController, animated: true, completion: nil)
     }
 
     private func exportCode(_ action: UIAction) {
@@ -493,6 +526,7 @@ extension CanvasViewController {
         if let undoManager = undoManager, undoManager.canUndo {
             undoManager.undo()
             Storage().saveBitmap(bitmap)
+            updateSizeLabel()
         }
     }
     
@@ -500,6 +534,7 @@ extension CanvasViewController {
         if let undoManager = undoManager, undoManager.canRedo {
             undoManager.redo()
             Storage().saveBitmap(bitmap)
+            updateSizeLabel()
         }
     }
 }
@@ -509,6 +544,11 @@ extension CanvasViewController {
     
     private var extrasButton: UIBarButtonItem {
         UIBarButtonItem(title: "Extras", image: UIImage(systemName: "ellipsis.circle"), primaryAction: nil, menu: extrasMenu)
+    }
+    
+    private var layersButton: UIBarButtonItem {
+//        UIBarButtonItem(title: "Layers", image: UIImage(systemName: "square.stack.3d.up"), primaryAction: nil, menu: extrasMenu)
+        UIBarButtonItem(image: UIImage(systemName: "square.stack.3d.up"), style: .plain, target: self, action: #selector(layersButtonPressed))
     }
     
     private var extrasMenu: UIMenu {
@@ -537,13 +577,13 @@ extension CanvasViewController {
             vc.didSelect = { bitmap in
                 self.onionImage = UIImage(bitmap: bitmap)
                 vc.dismiss(animated: true, completion: nil)
-                self.navigationItem.rightBarButtonItems = [self.extrasButton, self.redoButton, self.undoButton] // Update button state
+                self.updateBarButtons()
             }
             self.present(vc, animated: true)
         })
         let importPhoto = UIAction(title: "Import photo", image: UIImage(systemName: "photo.on.rectangle"), handler: { _ in
             if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
-                var imagePicker = UIImagePickerController()
+                let imagePicker = UIImagePickerController()
                 imagePicker.delegate = self
                 imagePicker.sourceType = .photoLibrary;
                 self.present(imagePicker, animated: true)
@@ -553,7 +593,7 @@ extension CanvasViewController {
         })
         let removeOnion = UIAction(title: "Remove preview layer", image: UIImage(systemName: "trash"), handler: { _ in
             self.onionView.image = nil
-            self.navigationItem.rightBarButtonItems = [self.extrasButton, self.redoButton, self.undoButton] // Update button state
+            self.updateBarButtons()
         })
         let actions = onionView.image == nil ? [importDrawing, importPhoto] : [removeOnion]
         return UIMenu(title: "Preview Layer", image: UIImage(systemName: "rectangle.dashed.and.paperclip"), options: .displayInline, children: actions)
@@ -565,6 +605,15 @@ extension CanvasViewController {
            UIAction(title: ".svg",  image: UIImage(systemName: "square.on.circle"), handler: exportSvg),
        ])
     }
+    
+    @objc private func layersButtonPressed() {
+        let vc = BitmapsCollectionViewController()
+        vc.didSelect = { bitmap in
+            self.bitmap = bitmap
+            vc.dismiss(animated: true)
+        }
+        navigationController?.present(vc, animated: true)
+    }
 }
 
 extension CanvasViewController: UIImagePickerControllerDelegate {
@@ -574,7 +623,7 @@ extension CanvasViewController: UIImagePickerControllerDelegate {
         onionView.image = image
         onionView.layer.magnificationFilter = .nearest
         picker.dismiss(animated: true)
-        self.navigationItem.rightBarButtonItems = [self.extrasButton, self.redoButton, self.undoButton] // Update button state
+        self.updateBarButtons()
     }
 }
 
@@ -607,7 +656,7 @@ extension CanvasViewController: GestureViewDelegate {
         switch selectedTool {
         case .fill:
             indexes = fill(with: strokeColor, at: index, in: bitmap)
-        case .none:
+        case .none, .move:
             previewView.layer.sublayers?.removeAll()
             return
         default:
@@ -619,7 +668,7 @@ extension CanvasViewController: GestureViewDelegate {
     }
 
     func didBeginDragging(at index: Int) {
-        var strokeColor = strokeColor
+        let strokeColor = strokeColor
 
         let indexes: [Int]
         switch selectedTool {
@@ -654,7 +703,7 @@ extension CanvasViewController: GestureViewDelegate {
             updateLayer(at: indexes)
             return
         case .none:
-            previewView.layer.sublayers?.removeAll()
+//            previewView.layer.sublayers?.removeAll()
             return
         }
         
@@ -756,6 +805,7 @@ extension CanvasViewController: GestureViewDelegate {
             updateLayer(at: indexes)
             previewView.image = UIImage()
         }
+        updateSizeLabel()
     }
     
     func drawSelection(around indexes: [Int], width: Int) {
@@ -805,7 +855,7 @@ extension CanvasViewController: UIScrollViewDelegate {
         canvasView
     }
     
-    func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
+//    func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
 //        scrollView.setZoomScale(zoomScale, animated: true)
 //        let zoomScale = CGFloat(ceil(Double(scale) * 4)) / 4
 //        print("scale: \(scale)\nnew: \(zoomScale)")
@@ -837,7 +887,7 @@ extension CanvasViewController: UIScrollViewDelegate {
 //        zoomLabel.contentMode = .scaleAspectFit
 //        scrollView.setZoomScale(sc÷ale, animated: true)
 //        print("\n")
-    }
+//    }
 }
 /*
 <svg id="mouse-svg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 24 24">

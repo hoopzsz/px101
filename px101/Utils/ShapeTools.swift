@@ -464,10 +464,10 @@ func fill(with newColor: Color, at index: Int, in bitmap: Bitmap) -> [Int] {
         }
         if isValid(right) {
             // Don't go past right edge
-//            if index % bitmap.width > right % bitmap.width {
+            if right % bitmap.width > index % bitmap.width {
                 indexQueue.append(right)
                 allIndexes.insert(right)
-//            }
+            }
         }
     }
         

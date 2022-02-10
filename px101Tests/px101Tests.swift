@@ -121,13 +121,13 @@ class px101Tests: XCTestCase {
 
         let croppedTopAndLeft = bitmap.cropped(top: 3, left: 3)
         
-        for color in croppedRightBy3 {
-            print(color)
-        }
-        print("\n")
-        for color in croppedRight.pixels {
-            print(color)
-        }
+//        for color in croppedRightBy3 {
+////            print(color)
+//        }
+//
+//        for color in croppedRight.pixels {
+////            print(color)
+//        }
         
         assert(croppedTop.pixels == croppedTopBy3)
         assert(croppedBottom.pixels == croppedBottomBy4)

@@ -45,11 +45,10 @@ final class PaletteViewController: UIViewController {
     
     let collectionView: UICollectionView
     private let cellIdentifier = "paletteCell"
-//    var palette: PaletteViewModel
     var palette: [Color]
     
     private var selection = 0
-    private var selectedIndexPath: IndexPath? = nil
+    private var selectedIndexPath: IndexPath = IndexPath(index: 0)
 
     weak var delegate: PaletteDelegate? = nil
     
@@ -58,7 +57,6 @@ final class PaletteViewController: UIViewController {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         self.collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-//        collectionView.isPagingEnabled = true
         collectionView.showsHorizontalScrollIndicator = true
 
         super.init(nibName: nil, bundle: nil)
@@ -71,17 +69,25 @@ final class PaletteViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        collectionView.backgroundColor = .clear
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.register(ColorPaletteCollectionViewCell.self, forCellWithReuseIdentifier: cellIdentifier)
-        collectionView.backgroundColor = .clear
         view.addSubview(collectionView)
-
-        delegate?.didSelectColor(palette[0])
     }
     
     override func viewWillLayoutSubviews() {
         collectionView.frame = view.frame
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        if let firstPath = collectionView.indexPathsForVisibleItems.min(), let cell = collectionView.cellForItem(at: firstPath) as? ColorPaletteCollectionViewCell {
+            selectedIndexPath = firstPath
+            cell.animateSelection()
+            delegate?.didSelectColor(palette[0])
+        }
     }
 }
 
@@ -99,28 +105,45 @@ extension PaletteViewController: UICollectionViewDelegateFlowLayout {
 extension PaletteViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if let selectedIndexPath = selectedIndexPath, let previousSelectionCell = collectionView.cellForItem(at: selectedIndexPath) as? ColorPaletteCollectionViewCell {
-            if collectionView.indexPathsForVisibleItems.contains(selectedIndexPath) {
-                previousSelectionCell.animateDeselection()
-            }
-        }
         
+//        if let previousSelectionCell = collectionView.cellForItem(at: selectedIndexPath) as? ColorPaletteCollectionViewCell {
+//            if collectionView.indexPathsForVisibleItems.contains(selectedIndexPath) {
+//                previousSelectionCell.animateDeselection()
+//            }
+//        }
+//
         if let cell = collectionView.cellForItem(at: indexPath) as? ColorPaletteCollectionViewCell {
+//            cell.isSelected = indexPath == selectedIndexPath
             if indexPath.row == palette.count + 1 {
                 delegate?.didPressPlusButton()
-            } else if indexPath.row == palette.count {
+//                return
+            }
+//            } else if indexPath.row == palette.count {
+//                cell.animateSelection()
+//                selection = indexPath.row
+//                selectedIndexPath = indexPath
+//                delegate?.didSelectColor(.clear)
+//            } else {
+//                cell.animateSelection()
+//                selection = indexPath.row
+//                selectedIndexPath = indexPath
+//                delegate?.didSelectColor(palette[selection])
+//            }
+            else {
+                if indexPath.row != palette.count + 1, let previousSelectionCell = collectionView.cellForItem(at: selectedIndexPath) as? ColorPaletteCollectionViewCell {
+                    if collectionView.indexPathsForVisibleItems.contains(selectedIndexPath) {
+                        previousSelectionCell.animateDeselection()
+                    }
+                }
                 cell.animateSelection()
                 selection = indexPath.row
                 selectedIndexPath = indexPath
-                delegate?.didSelectColor(.clear)
-            } else {
-                cell.animateSelection()
-                selection = indexPath.row
-                selectedIndexPath = indexPath
-                delegate?.didSelectColor(palette[selection])
+                let color = indexPath.row == palette.count ? .clear : palette[selection]
+                delegate?.didSelectColor(color)
             }
         }
         
+
         collectionView.setNeedsDisplay()
     }
     
@@ -146,12 +169,11 @@ extension PaletteViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         guard let cell = cell as? ColorPaletteCollectionViewCell else { return }
+        
         cell.contentView.subviews.forEach { $0.removeFromSuperview() }
         cell.contentView.layer.sublayers?.removeAll()
         if indexPath.row == palette.count + 1 { // Add button
             cell.setColor(.clear)
-//            cell.backgroundColor = .clear
-//            cell.layer.cornerRadius = 14
             cell.layer.borderColor = UIColor.clear.cgColor
             let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 32, height: 32))
             imageView.image = UIImage(systemName: "plus.circle.fill")
@@ -176,8 +198,12 @@ extension PaletteViewController: UICollectionViewDataSource {
         }
         
         if indexPath == selectedIndexPath {
+//            cell.isSelected = true
             cell.animateSelection()
         }
+//        } else {
+//            cell.isSelected = false
+//        }
     }
     
     func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
@@ -237,7 +263,6 @@ final class ColorPaletteCollectionViewCell: UICollectionViewCell {
             self.center = CGPoint(x: self.center.x, y: self.center.y - 4)
             self.layer.borderColor = UIColor.green.cgColor
             self.layer.shadowOpacity = 0.5
-
         }
     }
     
@@ -246,7 +271,6 @@ final class ColorPaletteCollectionViewCell: UICollectionViewCell {
             self.center = CGPoint(x: self.center.x, y: self.center.y + 4)
             self.layer.borderColor = UIColor.label.cgColor
             self.layer.shadowOpacity = 0
-
         }
     }
 }

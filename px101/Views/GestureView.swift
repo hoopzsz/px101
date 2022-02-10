@@ -44,7 +44,7 @@ final class GestureView: PixelView {
     
     private func addGestures() {
         let gesture = UILongPressGestureRecognizer(target: self, action: #selector(drag))
-        gesture.minimumPressDuration = 0.01
+        gesture.minimumPressDuration = 0.025
         addGestureRecognizer(gesture)
     }
     

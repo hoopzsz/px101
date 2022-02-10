@@ -784,7 +784,7 @@ enum fiveSeven: CaseIterable {
         }
     }
     
-    static func caseForCharacter(_ c: String) -> fiveSeven {
+    static func caseForCharacter(_ c: String) -> fiveSeven? {
         switch c {
         case "a": return .a
         case "b": return .b
@@ -825,8 +825,19 @@ enum fiveSeven: CaseIterable {
         case "9": return .nine
         case ".": return .period
         case "magnifyingGlass": return .magnifyingGlass
-        default: return .zero
+        default: return nil
         }
+    }
+    
+    static func stringToCases(_ string: String) -> [fiveSeven] {
+        var cases: [fiveSeven] = []
+        for character in string {
+            let c = String(character)
+            if let b = fiveSeven.caseForCharacter(c) {
+                cases.append(b)
+            }
+        }
+        return cases
     }
 }
 
