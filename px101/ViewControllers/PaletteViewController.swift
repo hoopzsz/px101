@@ -48,7 +48,7 @@ final class PaletteViewController: UIViewController {
     var palette: [Color]
     
     private var selection = 0
-    private var selectedIndexPath: IndexPath = IndexPath(index: 0)
+    private var selectedIndexPath: IndexPath? = nil
 
     weak var delegate: PaletteDelegate? = nil
     
@@ -83,7 +83,7 @@ final class PaletteViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        if let firstPath = collectionView.indexPathsForVisibleItems.min(), let cell = collectionView.cellForItem(at: firstPath) as? ColorPaletteCollectionViewCell {
+        if selectedIndexPath == nil, let firstPath = collectionView.indexPathsForVisibleItems.min(), let cell = collectionView.cellForItem(at: firstPath) as? ColorPaletteCollectionViewCell {
             selectedIndexPath = firstPath
             cell.animateSelection()
             delegate?.didSelectColor(palette[0])
@@ -130,7 +130,7 @@ extension PaletteViewController: UICollectionViewDelegate {
 //                delegate?.didSelectColor(palette[selection])
 //            }
             else {
-                if indexPath.row != palette.count + 1, let previousSelectionCell = collectionView.cellForItem(at: selectedIndexPath) as? ColorPaletteCollectionViewCell {
+                if let selectedIndexPath = selectedIndexPath, indexPath.row != palette.count + 1, let previousSelectionCell = collectionView.cellForItem(at: selectedIndexPath) as? ColorPaletteCollectionViewCell {
                     if collectionView.indexPathsForVisibleItems.contains(selectedIndexPath) {
                         previousSelectionCell.animateDeselection()
                     }

@@ -1,5 +1,5 @@
 //
-//  ShapeTools.swift
+//  Drawing.swift
 //  PixelPainter
 //
 //  Created by Daniel Hooper on 2021-11-07.
@@ -46,6 +46,19 @@ func lineIndexSet(firstIndex: Int, secondIndex: Int, arrayWidth: Int) -> [Int] {
     return converted
 }
 
+func drawOval(at firstIndex: Int, to secondIndex: Int, in bitmap: Bitmap) -> [Int] {
+    let w = bitmap.width
+    let x1 = firstIndex % w
+    let y1 = firstIndex / w
+    let x2 = secondIndex % w
+    let y2 = secondIndex / w
+    
+//    let r = (max(x1, x2) - min(x1, x2)) / 2
+    let majR: Int = abs(x2 - x1) / 2 + 1
+    let minR: Int = abs(y2 - y1) / 2 + 1
+    return ellipse(rx: Double(majR), ry: Double(minR), xc: Double(x1 + majR), yc: Double(y1 + minR), w: w)
+}
+
 func drawCircle(at firstIndex: Int, to secondIndex: Int, in bitmap: Bitmap) -> [Int] {
 
     func makeCoordinates(xCenter: Int, yCenter: Int, x: Int, y: Int) -> [(Int, Int)] {
@@ -61,14 +74,11 @@ func drawCircle(at firstIndex: Int, to secondIndex: Int, in bitmap: Bitmap) -> [
     
     let firstX = firstIndex % bitmap.width
     let firstY = firstIndex / bitmap.width
-//
-//    let secondX = secondIndex % bitmap.width
-//    let secondY = secondIndex / bitmap.width
     
     let horizontalLength = horizontalDistance(from: firstIndex, to: secondIndex, width: bitmap.width)
     let verticalLength   = verticalDistance(from: firstIndex, to: secondIndex, width: bitmap.width)
     
-    let radius = horizontalLength / 2// max(horizontalLength, verticalLength) / 2
+    let radius = horizontalLength / 2
     
     let xCenter = firstX + (horizontalLength / 2) // ?
     let yCenter = firstY + (verticalLength / 2)// ?
@@ -583,3 +593,246 @@ typealias Point = (Int, Int)
          }
      }
  */
+
+
+/*
+func midpointEllipse(majorRadius: Int, minorRadius: Int, centerX: Int, centerY: Int) -> [Point] {
+    
+    func makePoints(x: Int, xc: Int, y: Int, yc: Int) -> [(Int, Int)] {
+        [(x + xc, y + yc),
+         (-x + xc, y + yc),
+         (x + xc, -y + yc),
+         (-x + xc, -y + yc)]
+    }
+    
+    var dx, dy, d1, d2, x, y: Double
+    x = 0
+    y = Double(minorRadius)
+    var ry = minorRadius
+    var rx = majorRadius
+    
+    // Initial decision parameter of region 1
+    d1 = (ry * ry) - (rx * rx * ry) + (0.25 * rx * rx)
+    dx = 2 * ry * ry * x
+    dy = 2 * rx * rx * y
+
+    var points: [Point]
+    // For region 1
+    while (dx < dy) {
+        
+        // make points
+        points.append(contentsOf: makePoints(x: x, xc: centerX, y: y, yc: centerY))
+        
+        if (d1 < 0) {
+            x += 1
+            dx = dx + (2 * ry * ry)
+            d1 = d1 + dx + (ry * ry)
+        }
+        else {
+            x += 1
+            y -= 1
+            dx = dx + (2 * ry * ry);
+            dy = dy - (2 * rx * rx);
+            d1 = d1 + dx - dy + (ry * ry)
+        }
+    }
+    
+    // Decision parameter of region 2
+    d2 = ((ry * ry) * ((x + 0.5) * (x + 0.5))) +
+        ((rx * rx) * ((y - 1) * (y - 1))) -
+        (rx * rx * ry * ry)
+
+    // Plotting points of region 2
+    while (y >= 0) {
+        
+        points.append(contentsOf: makePoints(x: x, xc: centerX, y: y, yc: centerY))
+
+        if (d2 > 0) {
+            y -= 1
+            dy = dy - (2 * rx * rx)
+            d2 = d2 + (rx * rx) - dy
+        } else {
+            y -= 1
+            x += 1
+            dx = dx + (2 * ry * ry)
+            dy = dy - (2 * rx * rx)
+            d2 = d2 + dx - dy + (rx * rx)
+        }
+    }
+    
+    return points
+}
+*/
+
+func ellipse(rx: Double, ry: Double, xc: Double, yc: Double, w: Int) -> [Int] {
+    var dx, dy, d1, d2, x, y: Double
+    x = 0
+    y = ry
+
+    // Initial decision parameter of region 1
+    d1 = (ry * ry) - (rx * rx * ry) +
+                (0.25 * rx * rx)
+    dx = 2 * ry * ry * x
+    dy = 2 * rx * rx * y
+
+    var points: [(Double, Double)] = []
+    
+    // For region 1
+    while dx < dy {
+        
+
+        points.append(contentsOf: [(x + xc, y + yc),
+                                   (-x + xc, y + yc),
+                                   (x + xc, -y + yc),
+                                   (-x + xc, -y + yc)])
+
+        // Checking and updating value of
+        // decision parameter based on algorithm
+        if (d1 < 0) {
+            x += 1
+            dx = dx + (2 * ry * ry)
+            d1 = d1 + dx + (ry * ry)
+        }
+        else {
+            x += 1
+            y -= 1
+            dx = dx + (2 * ry * ry)
+            dy = dy - (2 * rx * rx)
+            d1 = d1 + dx - dy + (ry * ry)
+        }
+    }
+
+    // Decision parameter of region 2
+    d2 = ((ry * ry) * ((x + 0.5) * (x + 0.5))) +
+        ((rx * rx) * ((y - 1) * (y - 1))) -
+        (rx * rx * ry * ry)
+
+    // Plotting points of region 2
+    while y >= 0 {
+
+        points.append(contentsOf: [(x + xc, y + yc),
+                                   (-x + xc, y + yc),
+                                   (x + xc, -y + yc),
+                                   (-x + xc, -y + yc)])
+
+        // Checking and updating parameter
+        // value based on algorithm
+        if (d2 > 0)
+        {
+            y -= 1
+            dy = dy - (2 * rx * rx);
+            d2 = d2 + (rx * rx) - dy;
+        }
+        else
+        {
+            y -= 1
+            x += 1
+            dx = dx + (2 * ry * ry)
+            dy = dy - (2 * rx * rx)
+            d2 = d2 + dx - dy + (rx * rx)
+        }
+    }
+    return points.map { Int($0) + (Int($1) * w) }
+//    return points.map { $0 + ($1 * 16) } // 16 = width. change this
+}
+
+/*
+// Javascript program for implementing
+// Mid-Point Ellipse Drawing Algorithm
+function midptellipse(rx, ry, xc, yc)
+{
+    var dx, dy, d1, d2, x, y;
+    x = 0;
+    y = ry;
+
+    // Initial decision parameter of region 1
+    d1 = (ry * ry) - (rx * rx * ry) +
+                (0.25 * rx * rx);
+    dx = 2 * ry * ry * x;
+    dy = 2 * rx * rx * y;
+
+    // For region 1
+    while (dx < dy)
+    {
+        
+        // Print points based on 4-way symmetry
+        document.write("(" + (x + xc).toFixed(5) +
+                    " , " + (y + yc).toFixed(5) +
+                    ")" + "<br>");
+        document.write("(" + (-x + xc).toFixed(5) +
+                    " , " + (y + yc).toFixed(5) +
+                    ")" + "<br>");
+        document.write("(" + (x + xc).toFixed(5) +
+                    " , " + (-y + yc).toFixed(5) +
+                    ")" + "<br>");
+        document.write("(" + (-x + xc).toFixed(5) +
+                    " , " + (-y + yc).toFixed(5) +
+                    ")" + "<br>");
+
+        // Checking and updating value of
+        // decision parameter based on algorithm
+        if (d1 < 0)
+        {
+            x++;
+            dx = dx + (2 * ry * ry);
+            d1 = d1 + dx + (ry * ry);
+        }
+        else
+        {
+            x++;
+            y--;
+            dx = dx + (2 * ry * ry);
+            dy = dy - (2 * rx * rx);
+            d1 = d1 + dx - dy + (ry * ry);
+        }
+    }
+
+    // Decision parameter of region 2
+    d2 = ((ry * ry) * ((x + 0.5) * (x + 0.5))) +
+        ((rx * rx) * ((y - 1) * (y - 1))) -
+        (rx * rx * ry * ry);
+
+    // Plotting points of region 2
+    while (y >= 0)
+    {
+
+        // Print points based on 4-way symmetry
+        document.write("(" + (x + xc).toFixed(5) +
+                    " , " + (y + yc).toFixed(5) +
+                    " )" + "<br>");
+        document.write("(" + (-x + xc).toFixed(5) +
+                    " , " + (y + yc).toFixed(5) +
+                    ")" + "<br>");
+        document.write("(" + (x + xc).toFixed(5) +
+                    " , " + (-y + yc).toFixed(5) +
+                    ")" + "<br>");
+        document.write("(" + (-x + xc).toFixed(5) +
+                    " , " + (-y + yc).toFixed(5) +
+                    ")" + "<br>");
+
+        // Checking and updating parameter
+        // value based on algorithm
+        if (d2 > 0)
+        {
+            y--;
+            dy = dy - (2 * rx * rx);
+            d2 = d2 + (rx * rx) - dy;
+        }
+        else
+        {
+            y--;
+            x++;
+            dx = dx + (2 * ry * ry);
+            dy = dy - (2 * rx * rx);
+            d2 = d2 + dx - dy + (rx * rx);
+        }
+    }
+}
+
+// To draw a ellipse of major and
+// minor radius 15, 10 centered at (50, 50)
+midptellipse(10, 15, 50, 50);
+
+// This code is contributed by akshitsaxenaa09
+
+*/

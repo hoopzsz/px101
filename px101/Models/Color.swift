@@ -28,6 +28,7 @@ extension Color {
         String(format:"%02X", r) + String(format:"%02X", g) + String(format:"%02X", b)
     }
     
+    /// For odering the color palette in the canvas
     var darkLevel: Int {
         Int(r) + Int(g) + Int(b)
     }

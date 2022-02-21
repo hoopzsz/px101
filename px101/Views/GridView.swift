@@ -29,7 +29,6 @@ final class StrokeGridView: PixelView {
         guard let context = UIGraphicsGetCurrentContext() else { return }
         guard width > 1 && height > 1 else { return }
         
-//        context.setBlendMode(.difference)
         context.setStrokeColor(strokeColor.withAlphaComponent(0.5).cgColor)
         
         let wSize = rect.width / CGFloat(width)

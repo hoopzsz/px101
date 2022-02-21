@@ -17,6 +17,35 @@ extension ColoringDelegate {
     }
 }
 
+struct Project: Identifiable {
+    var id = UUID()
+    
+    let creationDate: Date
+    let lastUpdateDate: Date
+    
+    let width: Int
+    let layers: [Bitmap]
+    
+    init?(obj: ProjectObject) {
+        guard let id = obj.value(forKey: "id") as? UUID,
+              let width = obj.value(forKey: "width") as? Int,
+              let creationDate = obj.value(forKey: "creationDate") as? Date,
+              let lastUpdateDate = obj.value(forKey: "lastUpdateDate") as? Date,
+              let layers = obj.value(forKey: "bitmaps") as? [BitmapObject]
+        else { return nil }
+        
+        self.id = id
+        self.width = width
+        self.creationDate = creationDate
+        self.lastUpdateDate = lastUpdateDate
+        
+        let converted = layers.compactMap(Bitmap.init)
+        self.layers = converted
+//        self.pixels = try! JSONDecoder().decode([Color].self, from: data)
+//        self.palette = Array(Set(pixels))
+    }
+}
+
 struct Bitmap: Codable, Identifiable {
     
     var id = UUID()
@@ -32,10 +61,6 @@ struct Bitmap: Codable, Identifiable {
     
     var data: Data {
         Data(bytes: pixels, count: height * width * MemoryLayout<Color>.stride)
-    }
-    
-    var json: Data? {
-        try? JSONEncoder().encode(pixels)
     }
     
     init?(obj: BitmapObject) {
@@ -57,25 +82,25 @@ struct Bitmap: Codable, Identifiable {
         self.palette = Array(Set(pixels))
     }
     
-    init(id: UUID, width: Int, pixels: [Color]) {
+    init(id: UUID = UUID(), width: Int, pixels: [Color]) {
         self.id = id
         self.width = width
         self.pixels = pixels
         self.palette = Array(Set(pixels))
     }
     
-    init(width: Int, pixels: [Color]) {
-        self.width = width
-        self.pixels = pixels
-        self.palette = Array(Set(pixels))
-    }
+//    init(width: Int, pixels: [Color]) {
+//        self.width = width
+//        self.pixels = pixels
+//        self.palette = Array(Set(pixels))
+//    }
     
-    init(width: Int, height: Int, color: Color) {
-        self.width = width
-        pixels = Array(repeating: color, count: width * height)
-        self.palette = Array(Set(pixels))
-        
-    }
+//    init(width: Int, height: Int, color: Color) {
+//        self.width = width
+//        pixels = Array(repeating: color, count: width * height)
+//        self.palette = Array(Set(pixels))
+//
+//    }
     
     init(width: Int, binary: [Int], stroke: Color = .white, fill: Color = .clear) {
         self.width = width
@@ -87,6 +112,9 @@ struct Bitmap: Codable, Identifiable {
         get { pixels[y * width + x] }
         set { pixels[y * width + x] = newValue }
     }
+}
+
+extension Bitmap {
     
     func insert(newBitmap: Bitmap, at x: Int, y: Int) -> Bitmap {
         var copy = self
@@ -116,11 +144,6 @@ struct Bitmap: Codable, Identifiable {
 
         return copy
     }
-    
-    ///
-//    func removeSection(at: [Int], width: Int) -> Bitmap {
-//        let newBitmap = Bitmap(width: width, pixels: <#T##[Color]#>)
-//    }
     
     func cropped(top: Int = 0, bottom: Int = 0, left: Int = 0, right: Int = 0) -> Bitmap {
         var copy = self
@@ -168,19 +191,6 @@ struct Bitmap: Codable, Identifiable {
 
         return Bitmap(id: copy.id, width: width, pixels: copy.pixels)
     }
-}
-
-extension Bitmap {
-    
-    func prettyPrint() {
-        pixels.enumerated().forEach { index, element in
-            
-            if index % width == 0 {
-                print("\n")
-            }
-            print(element)
-        }
-    }
     
     func scaled(_ scale: Int) -> Bitmap {
         let width = width * scale
@@ -207,6 +217,21 @@ extension Bitmap {
 
         return Bitmap(id: id, width: width, pixels: pixels)
     }
+}
+
+extension Bitmap {
+    
+//    func prettyPrint() {
+//        pixels.enumerated().forEach { index, element in
+//
+//            if index % width == 0 {
+//                print("\n")
+//            }
+//            print(element)
+//        }
+//    }
+    
+
 }
 extension Bitmap {
     
@@ -268,5 +293,49 @@ extension Bitmap {
     /// Improves the readibility of assembling together multiple bitmaps into textual repressentations
     static var initial: Bitmap {
         Bitmap(width: 0, pixels: [])
+    }
+}
+
+extension Bitmap {
+    
+    var svg: String {
+        let prefix = "<svg id=\"px101\" xmlns=\"http://www.w3.org/2000/svg\" preserveAspectRatio=\"xMinYMin meet\" viewBox=\"0 0 \(width) \(height)\">"
+        
+        let uniqueColors = Set(pixels)
+        var bgColor: Color = .white
+        
+        var colorOccuranceDictionary: [Color: Int] = [:]
+        uniqueColors.forEach {
+            colorOccuranceDictionary[$0] = 0
+        }
+        for pixel in pixels {
+            if let value = colorOccuranceDictionary[pixel] {
+                colorOccuranceDictionary[pixel] = value + 1
+            }
+        }
+
+        if let (color, _) = colorOccuranceDictionary.max(by: {$0.1 < $1.1}) {
+            bgColor = color
+        }
+        
+        var colorDictionary: [Color: Int] = [:]
+        uniqueColors.enumerated().forEach { index, color in
+            colorDictionary[color] = index
+        }
+        let pixelRects = pixels
+            .enumerated()
+            .filter { $0.element != bgColor }
+            .map { index, color in
+                "<rect class=\"c\(colorDictionary[color]!)\" x=\"\(index % width)\" y=\"\(index / height)\"/>"
+            }
+            .joined()
+        
+        let bgRect = "<polygon points =\"0,0 0,\(width) \(width),\(height) \(width),0\" fill=\"#\(bgColor.hex)\"/>"
+        let stylePrefix = "<style>rect{width:1px;height:1px;} #px101{shape-rendering: crispedges;} "
+
+        let colors = colorDictionary.map { color, index in
+            ".c\(index){fill:#\(color.hex)}"
+        }.joined()
+        return prefix + bgRect + pixelRects + stylePrefix + colors + "</style>" + "</svg>"
     }
 }

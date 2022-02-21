@@ -8,6 +8,7 @@
 import UIKit
 import CoreData
 
+
 final class BitmapsCollectionViewController: UIViewController, NSFetchedResultsControllerDelegate {
 
     private var collectionView: UICollectionView!
@@ -148,3 +149,171 @@ extension BitmapsCollectionViewController: UICollectionViewDelegate {
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//class ProjectObjectsController: NSFetchedResultsController<ProjectObject> {
+//
+////    private let fetchedResultsController: NSFetchedResultsController<ProjectObject>
+//    private var predicate: NSPredicate? = nil
+//
+////    init() {
+////        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { fatalError() }
+////        let context = appDelegate.persistentContainer.viewContext
+////
+////        let request = ProjectObject.fetchRequest()
+////        let sort = NSSortDescriptor(key: "id", ascending: false)
+////        request.sortDescriptors = [sort]
+////
+////        fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
+////        fetchedResultsController.delegate = self
+////        fetchedResultsController.fetchRequest.predicate = predicate
+////    }
+//
+//    func loadData() -> [Project] {
+//        do {
+//            try performFetch()
+//        } catch {
+//            print("Fetch failed")
+//        }
+//    }
+//
+//    var numberOfObjects: Int {
+//        sections?[0].numberOfObjects
+//    }
+//}
+/*
+final class ProjectsCollectionViewController: UIViewController, NSFetchedResultsControllerDelegate {
+
+    private var collectionView: UICollectionView!
+    private let cellIdentifier = "cellIdentifier"
+    
+    private var fetchedResultsController: NSFetchedResultsController<ProjectObject>!
+    private var predicate: NSPredicate? = nil
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        navigationItem.backButtonTitle = ""
+        view.backgroundColor = .systemBackground
+        
+        let layout = UICollectionViewFlowLayout()
+        layout.minimumInteritemSpacing = 0
+        layout.minimumLineSpacing = 0
+        layout.sectionInset = UIEdgeInsets(top: 20, left: 0, bottom: 10, right: 0)
+        layout.itemSize = CGSize(width: view.frame.width / 3, height: view.frame.width / 3)
+
+
+        collectionView = UICollectionView(frame: view.frame, collectionViewLayout: layout)
+        collectionView.backgroundColor = .clear
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        collectionView.register(ImageCollectionViewCell.self, forCellWithReuseIdentifier: cellIdentifier)
+        view.addSubview(collectionView)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        loadData()
+    }
+    
+    private func loadData() {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+        let context = appDelegate.persistentContainer.viewContext
+
+        let request = ProjectObject.fetchRequest()
+        let sort = NSSortDescriptor(key: "id", ascending: false)
+        request.sortDescriptors = [sort]
+
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
+        fetchedResultsController.delegate = self
+        fetchedResultsController.fetchRequest.predicate = predicate
+
+        do {
+            try fetchedResultsController.performFetch()
+            collectionView.reloadData()
+        } catch {
+            print("Fetch failed")
+        }
+    }
+}
+
+extension ProjectsCollectionViewController: UICollectionViewDataSource {
+
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        fetchedResultsController.sections![section].numberOfObjects
+    }
+
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        guard let cell = cell as? ImageCollectionViewCell else { return }
+//
+//        let bitmapObj = fetchedResultsController.object(at: indexPath)
+
+        if let bitmap = Bitmap(obj: bitmapObj) {
+            cell.setBitmap(bitmap)
+        }
+    }
+
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        collectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath)
+    }
+}
+
+extension ProjectsCollectionViewController: UICollectionViewDelegate {
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+//        let bitmapObj = fetchedResultsController.sections![indexPath.section].objects![indexPath.row] as! BitmapObject
+//        if let bitmap = Bitmap(obj: bitmapObj) {
+//            didSelect(bitmap)
+//        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
+            UIMenu(title: "", children: [UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: .destructive) { _ in
+                guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+                let context = appDelegate.persistentContainer.viewContext
+    
+                let layer = self.fetchedResultsController.object(at: indexPath)
+                context.delete(layer)
+                
+                do {
+                    try self.fetchedResultsController.performFetch()
+                    collectionView.reloadData()
+                    try? context.save()
+                } catch {
+                    print("Fetch failed")
+                }
+            }])
+        }
+    }
+}
+*/
