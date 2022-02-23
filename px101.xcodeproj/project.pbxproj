@@ -25,6 +25,8 @@
 		A362D6FE2750C8AE00117B65 /* CGPointExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A362D6EE2750C8AE00117B65 /* CGPointExtensions.swift */; };
 		A362D6FF2750C8AE00117B65 /* UIColorExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A362D6EF2750C8AE00117B65 /* UIColorExtensions.swift */; };
 		A362D7002750C8AE00117B65 /* Drawing.swift in Sources */ = {isa = PBXBuildFile; fileRef = A362D6F02750C8AE00117B65 /* Drawing.swift */; };
+		A3729CE827C46B5C0061D116 /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3729CE727C46B5C0061D116 /* Storage.swift */; };
+		A3729CEA27C5E01E0061D116 /* Project.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3729CE927C5E01E0061D116 /* Project.swift */; };
 		A37E2C9427819CE700C4D3A7 /* Icons.swift in Sources */ = {isa = PBXBuildFile; fileRef = A37E2C9327819CE700C4D3A7 /* Icons.swift */; };
 		A3B750942750C1C700C0EDF7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B750932750C1C700C0EDF7 /* AppDelegate.swift */; };
 		A3B750962750C1C700C0EDF7 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B750952750C1C700C0EDF7 /* SceneDelegate.swift */; };
@@ -34,7 +36,7 @@
 		A3B750AE2750C1CA00C0EDF7 /* px101Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B750AD2750C1CA00C0EDF7 /* px101Tests.swift */; };
 		A3B750B82750C1CA00C0EDF7 /* px101UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B750B72750C1CA00C0EDF7 /* px101UITests.swift */; };
 		A3B750BA2750C1CA00C0EDF7 /* px101UITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B750B92750C1CA00C0EDF7 /* px101UITestsLaunchTests.swift */; };
-		A3CEBF6027B59F07004FA7D8 /* LayersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3CEBF5F27B59F07004FA7D8 /* LayersViewController.swift */; };
+		A3CEBF6027B59F07004FA7D8 /* LayerTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3CEBF5F27B59F07004FA7D8 /* LayerTableViewController.swift */; };
 		A3CEBF6927B5C250004FA7D8 /* BitmapObject+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3CEBF6527B5C250004FA7D8 /* BitmapObject+CoreDataClass.swift */; };
 		A3CEBF6A27B5C250004FA7D8 /* BitmapObject+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3CEBF6627B5C250004FA7D8 /* BitmapObject+CoreDataProperties.swift */; };
 		A3CEBF6B27B5C250004FA7D8 /* ProjectObject+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3CEBF6727B5C250004FA7D8 /* ProjectObject+CoreDataClass.swift */; };
@@ -77,6 +79,8 @@
 		A362D6EE2750C8AE00117B65 /* CGPointExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CGPointExtensions.swift; sourceTree = "<group>"; };
 		A362D6EF2750C8AE00117B65 /* UIColorExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIColorExtensions.swift; sourceTree = "<group>"; };
 		A362D6F02750C8AE00117B65 /* Drawing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Drawing.swift; sourceTree = "<group>"; };
+		A3729CE727C46B5C0061D116 /* Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
+		A3729CE927C5E01E0061D116 /* Project.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Project.swift; sourceTree = "<group>"; };
 		A37E2C9327819CE700C4D3A7 /* Icons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Icons.swift; path = px101/ViewControllers/Icons.swift; sourceTree = SOURCE_ROOT; };
 		A3B750902750C1C700C0EDF7 /* px101.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = px101.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A3B750932750C1C700C0EDF7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -90,7 +94,7 @@
 		A3B750B32750C1CA00C0EDF7 /* px101UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = px101UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A3B750B72750C1CA00C0EDF7 /* px101UITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = px101UITests.swift; sourceTree = "<group>"; };
 		A3B750B92750C1CA00C0EDF7 /* px101UITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = px101UITestsLaunchTests.swift; sourceTree = "<group>"; };
-		A3CEBF5F27B59F07004FA7D8 /* LayersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayersViewController.swift; sourceTree = "<group>"; };
+		A3CEBF5F27B59F07004FA7D8 /* LayerTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerTableViewController.swift; sourceTree = "<group>"; };
 		A3CEBF6527B5C250004FA7D8 /* BitmapObject+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BitmapObject+CoreDataClass.swift"; sourceTree = "<group>"; };
 		A3CEBF6627B5C250004FA7D8 /* BitmapObject+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BitmapObject+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		A3CEBF6727B5C250004FA7D8 /* ProjectObject+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProjectObject+CoreDataClass.swift"; sourceTree = "<group>"; };
@@ -129,8 +133,10 @@
 				A3CEBF6627B5C250004FA7D8 /* BitmapObject+CoreDataProperties.swift */,
 				A3CEBF6727B5C250004FA7D8 /* ProjectObject+CoreDataClass.swift */,
 				A3CEBF6827B5C250004FA7D8 /* ProjectObject+CoreDataProperties.swift */,
+				A3729CE727C46B5C0061D116 /* Storage.swift */,
 				A37E2C9327819CE700C4D3A7 /* Icons.swift */,
 				A362D6DE2750C8AE00117B65 /* Bitmap.swift */,
+				A3729CE927C5E01E0061D116 /* Project.swift */,
 				A362D6DF2750C8AE00117B65 /* Color.swift */,
 			);
 			path = Models;
@@ -145,7 +151,7 @@
 				A362D6E32750C8AE00117B65 /* HomeViewController.swift */,
 				A362D6E42750C8AE00117B65 /* PaletteViewController.swift */,
 				A362D6E52750C8AE00117B65 /* CanvasViewController.swift */,
-				A3CEBF5F27B59F07004FA7D8 /* LayersViewController.swift */,
+				A3CEBF5F27B59F07004FA7D8 /* LayerTableViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -359,6 +365,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A3CEBF6B27B5C250004FA7D8 /* ProjectObject+CoreDataClass.swift in Sources */,
+				A3729CE827C46B5C0061D116 /* Storage.swift in Sources */,
 				A362D6F32750C8AE00117B65 /* ProjectsViewController.swift in Sources */,
 				A362D6F62750C8AE00117B65 /* PaletteViewController.swift in Sources */,
 				A361476627C04FF30014713B /* DataExtensions.swift in Sources */,
@@ -370,7 +377,8 @@
 				A3CEBF6A27B5C250004FA7D8 /* BitmapObject+CoreDataProperties.swift in Sources */,
 				A362D6F52750C8AE00117B65 /* HomeViewController.swift in Sources */,
 				A37E2C9427819CE700C4D3A7 /* Icons.swift in Sources */,
-				A3CEBF6027B59F07004FA7D8 /* LayersViewController.swift in Sources */,
+				A3CEBF6027B59F07004FA7D8 /* LayerTableViewController.swift in Sources */,
+				A3729CEA27C5E01E0061D116 /* Project.swift in Sources */,
 				A362D6F42750C8AE00117B65 /* NewProjectViewController.swift in Sources */,
 				A3B750962750C1C700C0EDF7 /* SceneDelegate.swift in Sources */,
 				A361476A27C050450014713B /* ImageCollectionViewCell.swift in Sources */,

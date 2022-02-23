@@ -3,15 +3,18 @@
     <entity name="BitmapObject" representedClassName="BitmapObject" syncable="YES">
         <attribute name="creationDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isHidden" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="lastUpdateDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="palette" optional="YES" attributeType="Binary"/>
         <attribute name="pixels" optional="YES" attributeType="Binary"/>
         <attribute name="width" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="zIndex" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <relationship name="toProject" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ProjectObject" inverseName="bitmaps" inverseEntity="ProjectObject"/>
     </entity>
     <entity name="ProjectObject" representedClassName="ProjectObject" syncable="YES">
         <attribute name="creationDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="height" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="lastUpdateDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
@@ -20,7 +23,7 @@
         <relationship name="bitmaps" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="BitmapObject" inverseName="toProject" inverseEntity="BitmapObject"/>
     </entity>
     <elements>
-        <element name="BitmapObject" positionX="-63" positionY="-18" width="128" height="149"/>
-        <element name="ProjectObject" positionX="-36" positionY="54" width="128" height="134"/>
+        <element name="BitmapObject" positionX="-63" positionY="-18" width="128" height="179"/>
+        <element name="ProjectObject" positionX="-36" positionY="54" width="128" height="149"/>
     </elements>
 </model>

@@ -21,6 +21,7 @@ extension ProjectObject {
     @NSManaged public var name: String?
     @NSManaged public var id: UUID?
     @NSManaged public var width: Int16
+    @NSManaged public var height: Int16
     @NSManaged public var palette: Data?
     @NSManaged public var bitmaps: NSSet?
 
@@ -45,4 +46,7 @@ extension ProjectObject {
 
 extension ProjectObject : Identifiable {
 
+    func setBitmaps(_ bitmaps: [BitmapObject]) {
+        self.bitmaps = NSSet(array: bitmaps)
+    }
 }

@@ -123,6 +123,8 @@ final class NewProjectViewController: UIViewController {
         
         let imageView = UIImageView(image: UIImage(bitmap: newProjectImage)?.withTintColor(UIColor.label))
         imageView.contentMode = .center
+        imageView.layer.magnificationFilter = .nearest
+
         navigationItem.titleView = imageView
     }
     
@@ -176,26 +178,13 @@ final class NewProjectViewController: UIViewController {
     @objc private func createButtonPressed(_ sender: UIBarButtonItem) {
         heightField.resignFirstResponder()
         widthField.resignFirstResponder()
-//        let randomColor = UIColor(red: CGFloat(Int.random(in: 0...255))/255,
-//                                  green: CGFloat(Int.random(in: 0...255))/255,
-//                                  blue: CGFloat(Int.random(in: 0...255))/255,
-//                                  alpha: 1)
-//        let randomColor = Color(r: UInt8.random(in: 0...255),
-//                                g: UInt8.random(in: 0...255),
-//                                b: UInt8.random(in: 0...255),
-//                                a: 255)
-        let randomColor = Color.clear
-//                    let colors = (i..<i*8*8).map { _ in
-//                        UIColor(red: CGFloat(Int.random(in: 0...255))/255,
-//                                                  green: CGFloat(Int.random(in: 0...255))/255,
-//                                                  blue: CGFloat(Int.random(in: 0...255))/255,
-//                                                  alpha: 1)
-//                    }
-//        let colors = (1...(Int(width) * Int(height))).map { _ in randomColor }
-        let colors = Array(repeating: randomColor, count: Int(width * height))
+        let colors = Array(repeating: Color.clear, count: Int(width * height))
         let bitmap = Bitmap(width: Int(width), pixels: colors)
-        let viewController = CanvasViewController(bitmap: bitmap)
-        Storage().saveBitmap(bitmap)
+        let project = Project(width: bitmap.width, height: bitmap.height, layers: [bitmap], creationDate: Date(), lastUpdateDate: Date())
+        Storage.saveBitmap(bitmap, project: project)
+        Storage.saveProject(project)
+
+        let viewController = CanvasViewController(project: project)
         navigationController?.pushViewController(viewController, animated: true)
     }
 }

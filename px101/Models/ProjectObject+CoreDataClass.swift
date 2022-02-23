@@ -13,3 +13,8 @@ import CoreData
 public class ProjectObject: NSManagedObject {
 
 }
+
+extension ProjectObject {
+    
+//    convenience ini
+}

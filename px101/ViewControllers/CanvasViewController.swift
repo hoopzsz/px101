@@ -7,19 +7,63 @@
 
 import UIKit
 
+/// The state of a canvas
+struct Canvas {
+    
+    private var project: Project
+
+    var selectedLayerIndex = 0
+    
+    var selectedLayer: Bitmap {
+        project.layers[selectedLayerIndex]
+    }
+    
+    var layers: [Bitmap] {
+        project.layers
+    }
+    
+    var width: Int {
+        project.width
+    }
+    
+    var height: Int {
+        project.height
+    }
+}
+
 final class CanvasViewController: UIViewController, UINavigationControllerDelegate {
     
+    /// A scrollview to enable zooming in an out
     private let scrollview = UIScrollView()
-    private let canvasView = UIView()
     
-    // Layer views
+    /// The container view for the layers, grid, and gesture view
+    private let containerView = UIView()
+    
+    /// The container view for the layers, grid, and gesture view
+    private let layerContainerView = UIView()
+    
+    /// Displays a checkerboard pattern indiicating empty space
     private let transparencyView = UIImageView()
-    private let bitmapView = UIImageView()
+    
+    /// The bitmap layers of a project
+    private var layerViews: [UIImageView] = []
+    
+    /// Shows the results of a gesture interaction befor commiting a change to the artwork
     private let previewView = UIImageView()
+
+    /// A view displayed to the user to allow them to trace another layer or photo
     private let onionView = UIImageView()
 
+    /// A guide for the user to see where they're placing pixels
     private let gridView: StrokeGridView
+    
+    /// Intercepts drawing gestures to be relayed back to the canvas
     private let gestureView: GestureView
+    
+    /// The layer currently being manipulated in the canvas
+    private var currentLayerView: UIImageView {
+        layerViews[layerSelection]
+    }
     
     private let fileSizeLabel = UIImageView()
 
@@ -72,52 +116,71 @@ final class CanvasViewController: UIViewController, UINavigationControllerDelega
         }
     }
     
+    private var layerSelection = 0
+
     private var strokeColor: Color = .black
     private var temporaryColorSelection: UIColor? = nil
     
     private var selectedTool: DrawingTool = .none
     
-    private var bitmap: Bitmap {
+    /// The bitmap layer currently being edited
+//    private var bitmap: Bitmap {
+//        get {
+//            project.layers[layerSelection]
+//        }
+//        set {
+//            project.layers[layerSelection] = newValue
+//        }
+//    }
+    
+    /// A temporary bitmap that is modified during gestures. When a gesture completes, the bitmap is updated and the preview bitmap is reset
+    private var previewBitmap: Bitmap? = nil {
         didSet {
-            bitmapView.image = UIImage(bitmap: bitmap)
+            if let bitmap = previewBitmap {
+                currentLayerView.image = UIImage(bitmap: bitmap)
+            }
         }
     }
     
+//    private var project: Project
+    
+    private var projectObject: ProjectObject
+    
     private var selectionArea: Bitmap? = nil
     
-    init(bitmap: Bitmap) {
-        self.bitmap = bitmap
-        [transparencyView, bitmapView, previewView, onionView].forEach { view in
-            view.backgroundColor = .clear
-            view.isUserInteractionEnabled = false
-            view.contentMode = .scaleAspectFit
-            view.layer.magnificationFilter = .nearest
-            view.layer.magnificationFilter = .nearest
-            view.layer.borderColor = UIColor.label.cgColor
-            view.layer.borderWidth = 1
-        }
+//    init(project: Project) {
+    init(projectObject: ProjectObject) {
+
+//        self.project = project
+        self.projectObject = projectObject
+//        let bitmap = project.layers[layerSelection]
+        
+        let width = Int(projectObject.width)
+        let height = Int(projectObject.height)
+        
+        gridView = StrokeGridView(width: width, height: height)
+        gridView.backgroundColor = .clear
+        gestureView = GestureView(width: width, height: height, frame: .zero)
+        
+        super.init(nibName: nil, bundle: nil)
+        
+        self.title = ""
+        self.navigationItem.title = ""
         
         fileSizeLabel.contentMode = .center
         fileSizeLabel.backgroundColor = .clear
         fileSizeLabel.layer.magnificationFilter = .nearest
         fileSizeLabel.translatesAutoresizingMaskIntoConstraints = false
                 
-        let transparencyBitmap = Bitmap.transparencyIndicator(of: bitmap.width, height: bitmap.height)
+        let transparencyBitmap = Bitmap.transparencyIndicator(of: width, height: height)
         transparencyView.image = UIImage(bitmap: transparencyBitmap)
         
-        gridView = StrokeGridView(width: bitmap.width, height: bitmap.height)
-        gridView.backgroundColor = .clear
-//        gridView.isUserInteractionEnabled = false
-        gestureView = GestureView(width: bitmap.width, height: bitmap.height, frame: .zero)
         var palette = bitmap.palette//.sorted(by: { $1.darkLevel > $0.darkLevel }
         if palette.count == 1, palette[0] == .clear {
             palette = [.black, .gray, .white, .red, .orange, .yellow, .blue, .green, .magenta]
         }
         paletteViewController = PaletteViewController(palette: palette.sorted(by: { $1.darkLevel > $0.darkLevel }))
-
-        super.init(nibName: nil, bundle: nil)
-        self.title = ""
-        self.navigationItem.title = ""
+        
         undoButton = UIBarButtonItem(image: UIImage(systemName: "arrowshape.turn.up.left.circle"), style: .plain, target: self, action: #selector(undoButtonPressed))
         redoButton = UIBarButtonItem(image: UIImage(systemName: "arrowshape.turn.up.forward.circle"), style: .plain, target: self, action: #selector(redoButtonPressed))
         undoButton.isEnabled = false
@@ -128,35 +191,39 @@ final class CanvasViewController: UIViewController, UINavigationControllerDelega
         fatalError("init(coder:) has not been implemented")
     }
     
+    /// Applies shared properties for all image views
+    private func configureImageView(_ imageView: UIImageView) {
+        imageView.backgroundColor = .clear
+        imageView.isUserInteractionEnabled = false
+        imageView.contentMode = .scaleAspectFit
+        imageView.layer.magnificationFilter = .nearest
+        imageView.layer.borderColor = UIColor.label.cgColor
+        imageView.layer.borderWidth = 1
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = .systemBackground
-        view.addSubview(transparencyView)
         view.addSubview(scrollview)
         view.addSubview(fileSizeLabel)
         view.addSubview(buttonStack)
+        scrollview.addSubview(containerView)
 
         scrollview.delegate = self
         scrollview.minimumZoomScale = 1.0
         scrollview.maximumZoomScale = CGFloat(bitmap.width / 4)
         scrollview.bounces = false
-        scrollview.addSubview(canvasView)
 
         onionView.alpha = 0.5
 
-        bitmapView.clipsToBounds = false
-        bitmapView.image = UIImage(bitmap: bitmap)
-
-        layerViewHeirarchy
-            .forEach(canvasView.addSubview)
-        
-//        buttonHeirarchy
-//            .forEach(buttonStack.addArrangedSubview)
-        
         buttonHeirarchy.enumerated().forEach {
             $0.element.tag = $0.offset
             buttonStack.addArrangedSubview($0.element)
+        }
+        
+        layerViewHeirarchy.forEach {
+            containerView.addSubview($0)
         }
                 
         buttonStack.distribution = .equalCentering
@@ -170,6 +237,9 @@ final class CanvasViewController: UIViewController, UINavigationControllerDelega
         updateSizeLabel()
         
         navigationController?.interactivePopGestureRecognizer?.isEnabled = false
+        
+        updateBarButtons()
+//        drawLayerViews()
     }
     
     override func viewWillLayoutSubviews() {
@@ -209,36 +279,80 @@ final class CanvasViewController: UIViewController, UINavigationControllerDelega
             fileSizeLabel.heightAnchor.constraint(equalToConstant: 12)
         ])
         
-        canvasView.frame = scrollview.bounds
+        containerView.frame = scrollview.bounds
         
-        canvasView.subviews.forEach {
+        containerView.subviews.forEach {
             $0.frame = CGRect(x: (view.frame.width - canvasWidth) * 0.5,
                               y: (scrollview.frame.height - canvasHeight) * 0.5,
                               width: canvasWidth,
                               height: canvasHeight)
         }
         
-        updateBarButtons()
+        drawLayerViews()
+    }
+    
+    func drawLayerViews() {
+        layerContainerView.subviews.forEach { $0.removeFromSuperview() }
+        
+        layerViews = project.layers
+            .sorted(by: { $0.zIndex > $1.zIndex })
+            .map { bitmap in
+                UIImageView(image: UIImage(bitmap: bitmap))
+        }
+        
+        layerViews.enumerated().forEach { index, view in
+            view.isHidden = project.layers[index].isHidden
+        }
+
+        layerViews.forEach(configureImageView)
+        
+        layerViews.forEach(layerContainerView.addSubview)
+
+        layerContainerView.subviews.forEach {
+            $0.frame = layerContainerView.bounds
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
         navigationController?.interactivePopGestureRecognizer?.isEnabled = false
         didSelectColor(strokeColor)
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+        drawLayerViews()
+//
+//        reloadProject()
+//        updateLayerViews()
+//        self.layerViews = project.layers.reversed().map {
+//            UIImageView(image: UIImage(bitmap: $0))
+//        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
         navigationController?.interactivePopGestureRecognizer?.isEnabled = true
-        Storage().saveBitmap(bitmap)
+        Storage.saveProject(project)
+//        Storage.saveBitmap(bitmap, project: project)
+//        updateProject()
+    }
+    
+    private func reloadProject() {
+        if let object = Storage.loadProject(project.id), let project = Project(object: object) {
+            self.project = project
+        }
+        drawLayerViews()
+    }
+    
+    private func updateProject() {
+        if let i = project.layers.firstIndex(where: { $0.id == bitmap.id }) {
+            project.layers[i] = bitmap
+        }
     }
     
     private func updateBarButtons() {
         navigationItem.rightBarButtonItems = [extrasButton, layerButton, redoButton, undoButton]
+    }
+    
+    private func updateLayerViews() {
+        self.layerViews = project.layers.reversed().map {
+            UIImageView(image: UIImage(bitmap: $0))
+        }
     }
     
     func updateSizeLabel() {
@@ -262,9 +376,8 @@ extension CanvasViewController {
 
     private var layerViewHeirarchy: [UIView] {
         [transparencyView,
-         bitmapView,
+         layerContainerView,
          onionView,
-         previewView,
          gridView,
          gestureView]
     }
@@ -298,7 +411,6 @@ extension CanvasViewController: ColorSelectionDelegate {
         paletteViewController.willMove(toParent: self)
         addChild(paletteViewController)
         paletteViewController.didMove(toParent: self)
-//        paletteViewController.didsel
     }
     
     func didChangeColors(_ strokeColor: UIColor, _ fillColor: UIColor) {
@@ -415,16 +527,20 @@ extension CanvasViewController {
     @objc private func undoButtonPressed() {
         if let undoManager = undoManager, undoManager.canUndo {
             undoManager.undo()
-            Storage().saveBitmap(bitmap)
+
+            Storage.saveBitmap(bitmap, project: project)
             updateSizeLabel()
+            layerViews[layerSelection].image = UIImage(bitmap: bitmap)
         }
     }
     
     @objc private func redoButtonPressed() {
         if let undoManager = undoManager, undoManager.canRedo {
             undoManager.redo()
-            Storage().saveBitmap(bitmap)
+
+            Storage.saveBitmap(bitmap, project: project)
             updateSizeLabel()
+            layerViews[layerSelection].image = UIImage(bitmap: bitmap)
         }
     }
 }
@@ -437,7 +553,6 @@ extension CanvasViewController {
     }
     
     private var layerButton: UIBarButtonItem {
-//        UIBarButtonItem(title: "Layers", image: UIImage(systemName: "square.stack.3d.up"), primaryAction: nil, menu: extrasMenu)
         UIBarButtonItem(image: UIImage(systemName: "square.stack.3d.up"), style: .plain, target: self, action: #selector(layerButtonPressed))
     }
     
@@ -501,16 +616,8 @@ extension CanvasViewController {
     }
     
     @objc private func layerButtonPressed() {
-//        let heirarchy = [transparencyView, bitmapView, gridView]
-//        heirarchy.enumerated().forEach { index, view in
-//            view.transform = CGAffineTransform(a: 1 , b: -0.2, c: 0, d: 1, tx: -16 + (CGFloat(index) * 16), ty: -16 + (CGFloat(index) * 16))
-//        }
-        
-        let vc = BitmapsCollectionViewController()
-        vc.didSelect = { bitmap in
-            self.bitmap = bitmap
-            vc.dismiss(animated: true)
-        }
+        let vc = LayerTableViewController(project: project)
+        vc.delegate = self
         
         let layerLetters: [fiveSeven] = [.l, .a, .y, .e, .r, .s]
         let titleImage = layerLetters
@@ -520,12 +627,20 @@ extension CanvasViewController {
         
         let imageView = UIImageView(image: UIImage(bitmap: titleImage)?.withTintColor(UIColor.label))
         imageView.contentMode = .center
+        imageView.layer.magnificationFilter = .nearest
         vc.navigationItem.titleView = imageView
         navigationController?.pushViewController(vc, animated: true)
-//        vc.navig
-//        let nav = UINavigationController(rootViewController: vc)
-        
-//        navigationController?.present(nav, animated: true)
+    }
+}
+extension CanvasViewController: LayerViewControllerDelegate {
+    
+    func didAddLayer(_ bitmap: Bitmap) {
+        project.layers.append(bitmap)
+    }
+    
+    func didSelect(bitmap: Bitmap, index: Int) {
+        self.bitmap = bitmap
+        self.layerSelection = index
     }
 }
 
@@ -557,11 +672,13 @@ extension CanvasViewController: GestureViewDelegate {
     }
     
     func updateLayer(at indexes: [Int]) {
-        guard indexes.isNotEmpty else { return }
+        guard let previewBitmap = previewBitmap, indexes.isNotEmpty else { return }
+//        let oldBitmap = bitmap
         let oldBitmap = bitmap
-        bitmap.changeColor(strokeColor, at: indexes)
+        bitmap = previewBitmap
+        layerViews[layerSelection].image = UIImage(bitmap: bitmap)
         bitmapDidChange(from: oldBitmap)
-        Storage().saveBitmap(bitmap)
+        Storage.saveBitmap(bitmap, project: project)
     }
     
     func didTap(at index: Int) {
@@ -570,7 +687,7 @@ extension CanvasViewController: GestureViewDelegate {
         case .fill:
             indexes = fill(with: strokeColor, at: index, in: bitmap)
         case .none, .move:
-            previewView.layer.sublayers?.removeAll()
+//            previewView.layer.sublayers?.removeAll()
             return
         default:
             indexes = [index]
@@ -586,14 +703,15 @@ extension CanvasViewController: GestureViewDelegate {
         let indexes: [Int]
         switch selectedTool {
         case .move:
-            previewView.layer.sublayers?.removeAll()
+//            previewView.layer.sublayers?.removeAll()
             var previewBitmap = Bitmap(width: bitmap.width, pixels: Array(repeating: Color.clear, count: bitmap.pixels.count))
             if let selectionArea = selectionArea {
                 let x = (index % bitmap.width) - (selectionArea.width / 2)
                 let y = (index / bitmap.width) - (selectionArea.height / 2)
                 previewBitmap = previewBitmap.insert(newBitmap: selectionArea, at: x, y: y)
             }
-            previewView.image = UIImage(bitmap: previewBitmap)
+//            previewView.image = UIImage(bitmap: previewBitmap)
+            // TODO
             return
         case .line:
             indexes = lineIndexSet(firstIndex: gestureView.touchDownIndex, secondIndex: index, arrayWidth: bitmap.width)
@@ -619,9 +737,8 @@ extension CanvasViewController: GestureViewDelegate {
 //            previewView.layer.sublayers?.removeAll()
             return
         }
-        
-        previewView.image = UIImage(bitmap: bitmap.withChanges(newColor: strokeColor, at: indexes))
-        
+    
+        previewBitmap = bitmap.withChanges(newColor: strokeColor, at: selectedTool == .pencil ? dragIndexes : indexes)
         lastDragIndex = index
     }
 
@@ -637,23 +754,17 @@ extension CanvasViewController: GestureViewDelegate {
 //                bitmap = bitmap.insert(newBitmap: selectionArea, at: x, y: y)
                 previewBitmap = previewBitmap.insert(newBitmap: selectionArea, at: x, y: y)
             }
-            previewView.image = UIImage(bitmap: previewBitmap)
+//            previewView.image = UIImage(bitmap: previewBitmap)
             return
         case .line:
             indexes = lineIndexSet(firstIndex: gestureView.touchDownIndex, secondIndex: index, arrayWidth: bitmap.width)
         case .circle:
             indexes = drawOval(at: gestureView.touchDownIndex, to: index, in: bitmap)
-//            indexes = drawCircle(at: gestureView.touchDownIndex, to: index, in: bitmap)
         case .selection:
-//            strokeColor = Color(r: 255, g: 255, b: 255, a: 128)
             indexes = rectangularFillIndexSet(initialIndex: gestureView.touchDownIndex, currentIndex: index, arrayWidth: bitmap.width)
             drawSelection(around: indexes, width: bitmap.width)
             lastDragIndex = index
             return
-//            let sectionWidth = horizontalDistance(from: gestureView.touchDownIndex, to: index, width: bitmap.width)
-//            print(sectionWidth)
-//            let section = Bitmap(width: sectionWidth, pixels: indexes.map { bitmap.pixels[$0] })
-//            print(section)
         case .rectangle:
             indexes = rectangularIndexSet(initialIndex: gestureView.touchDownIndex, currentIndex: index, arrayWidth: bitmap.width)
         case .rectangleFill:
@@ -666,8 +777,8 @@ extension CanvasViewController: GestureViewDelegate {
         case .none:
             return
         }
-        previewView.image = UIImage(bitmap: bitmap.withChanges(newColor: strokeColor, at: selectedTool == .pencil ? dragIndexes : indexes))
-        
+
+        previewBitmap = bitmap.withChanges(newColor: strokeColor, at: selectedTool == .pencil ? dragIndexes : indexes)
         lastDragIndex = index
     }
 
@@ -675,7 +786,7 @@ extension CanvasViewController: GestureViewDelegate {
         let indexes: [Int]
         switch selectedTool {
         case .move:
-            var previewBitmap = Bitmap(width: bitmap.width, pixels: Array(repeating: Color.clear, count: bitmap.pixels.count))
+//            var previewBitmap = Bitmap(width: bitmap.width, pixels: Array(repeating: Color.clear, count: bitmap.pixels.count))
             if let selectionArea = selectionArea {
                 let oldBitmap = bitmap
                 
@@ -684,16 +795,16 @@ extension CanvasViewController: GestureViewDelegate {
                 
                 bitmap = bitmap.insert(newBitmap: selectionArea, at: x, y: y)
                 bitmapDidChange(from: oldBitmap)
-                Storage().saveBitmap(bitmap)
+                Storage.saveBitmap(bitmap, project: project)
             }
             selectedTool = .none
-            previewView.image = UIImage()
+//            previewView.image = UIImage()
+            // TODO
             return
         case .line:
             indexes = lineIndexSet(firstIndex: gestureView.touchDownIndex, secondIndex: index, arrayWidth: bitmap.width)
         case .circle:
             indexes = drawOval(at: gestureView.touchDownIndex, to: index, in: bitmap)
-//            indexes = drawCircle(at: gestureView.touchDownIndex, to: index, in: bitmap)
         case .selection:
             indexes = rectangularFillIndexSet(initialIndex: gestureView.touchDownIndex, currentIndex: index, arrayWidth: bitmap.width)
             lastDragIndex = index
@@ -716,16 +827,24 @@ extension CanvasViewController: GestureViewDelegate {
             return
         }
         lastDragIndex = index
+//        bitmap = previewBitmap.withChanges(newColor: strokeColor, at: indexes)
+//        currentLayerView.image = UIImage(bitmap: bitmap)
+        
+        previewBitmap = bitmap.withChanges(newColor: strokeColor, at: selectedTool == .pencil ? dragIndexes : indexes)
+
+//        previewBitmap = nil
         if selectedTool != .selection {
             updateLayer(at: indexes)
-            previewView.image = UIImage()
+            previewBitmap = nil
+//            previewView.image = UIImage()
         }
         updateSizeLabel()
     }
     
     func drawSelection(around indexes: [Int], width: Int) {
 //        previewView.layer.removeAllAnimations()
-        previewView.layer.sublayers?.removeAll()
+        // TODO
+//        previewView.layer.sublayers?.removeAll()
 
         let width = horizontalDistance(from: gestureView.touchDownIndex, to: lastDragIndex, width: bitmap.width) + 1
         let height = verticalDistance(from: gestureView.touchDownIndex, to: lastDragIndex, width: bitmap.width) + 1
@@ -748,7 +867,7 @@ extension CanvasViewController: GestureViewDelegate {
         layer.strokeColor = UIColor.green.cgColor
         layer.fillColor = nil
         layer.lineDashPattern = [8, 6]
-        previewView.layer.addSublayer(layer)
+//        previewView.layer.addSublayer(layer)
         
         let animation = CABasicAnimation(keyPath: "lineDashPattern")
         animation.fromValue = 0
@@ -756,7 +875,7 @@ extension CanvasViewController: GestureViewDelegate {
         animation.duration = 1
         animation.repeatCount = .infinity
         DispatchQueue.main.async {
-            self.previewView.layer.add(animation, forKey: "line")
+//            self.previewView.layer.add(animation, forKey: "line")
         }
     }
 }
@@ -764,7 +883,7 @@ extension CanvasViewController: GestureViewDelegate {
 extension CanvasViewController: UIScrollViewDelegate {
     
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        canvasView
+        containerView
     }
 }
 
@@ -775,3 +894,86 @@ enum Direction {
 enum DrawingTool {
     case pencil, line, selection, rectangle, rectangleFill, circle, fill, none, move // move is not user selectable, but a selection state
 }
+
+/*
+final class LayersViewController: UIViewController, UINavigationControllerDelegate {
+    
+    private let scrollview = UIScrollView()
+    private var layerViews: [UIImageView] = []
+    private let gridView: StrokeGridView
+    private let gestureView: GestureView
+
+    var _project: ProjectObject
+    
+    var width: Int {
+        Int(_project.width)
+    }
+    
+    var height: Int {
+        Int(_project.height)
+    }
+    
+    init(project: ProjectObject) {
+        self._project = project
+        
+        let w = Int(project.width)
+        let h = Int(project.height)
+        self.gridView = StrokeGridView(width: w, height: h)
+        self.gestureView = GestureView(width: w, height: h)
+        
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        view.addSubview(scrollview)
+    }
+    
+    override func viewWillLayoutSubviews() {
+        scrollview.translatesAutoresizingMaskIntoConstraints = false
+
+        var canvasWidth = guide.layoutFrame.maxX - guide.layoutFrame.minX
+        var canvasHeight = canvasWidth
+        let pixelWidth = canvasWidth / CGFloat(width)
+        let pixelHeight = canvasHeight / CGFloat(height)
+
+        let difference = abs(width - height)
+
+        if width > height {
+            canvasHeight = canvasHeight - (CGFloat(difference) * pixelWidth)
+        } else if height > width {
+            canvasWidth = canvasWidth - (CGFloat(difference) * pixelHeight)
+        }
+
+        NSLayoutConstraint.activate([
+            scrollview.topAnchor.constraint(equalTo: guide.topAnchor),
+            scrollview.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollview.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+//            buttonStack.heightAnchor.constraint(equalToConstant: 48),
+//            buttonStack.leadingAnchor.constraint(equalTo: guide.leadingAnchor),
+//            buttonStack.trailingAnchor.constraint(equalTo: guide.trailingAnchor),
+//            buttonStack.bottomAnchor.constraint(equalTo: guide.bottomAnchor),
+//
+//            paletteContainerView.heightAnchor.constraint(greaterThanOrEqualToConstant: 48),
+//            paletteContainerView.leadingAnchor.constraint(equalTo: guide.leadingAnchor, constant: 0),
+//            paletteContainerView.trailingAnchor.constraint(equalTo: guide.trailingAnchor, constant: 0),
+//            paletteContainerView.bottomAnchor.constraint(equalTo: guide.topAnchor, constant: -4),
+
+//            scrollview.bottomAnchor.constraint(equalTo: buttonStack.topAnchor, constant: -4),
+            
+//            fileSizeLabel.topAnchor.constraint(equalTo: layoutGuide.topAnchor, constant: 4),
+//            fileSizeLabel.trailingAnchor.constraint(equalTo: layoutGuide.trailingAnchor),
+//            fileSizeLabel.heightAnchor.constraint(equalToConstant: 12)
+        ])
+    }
+    
+    private var guide: UILayoutGuide {
+        view.layoutMarginsGuide
+    }
+}
+*/

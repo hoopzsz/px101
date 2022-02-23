@@ -88,6 +88,10 @@ final class PaletteViewController: UIViewController {
             cell.animateSelection()
             delegate?.didSelectColor(palette[0])
         }
+        
+        if let indexPath = selectedIndexPath {
+            collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
+        }
     }
 }
 

@@ -6,104 +6,79 @@
 //
 
 import UIKit
-
-protocol ColoringDelegate: AnyObject {
-    var drawingColor: UIColor { get }
-}
-
-extension ColoringDelegate {
-    func didSelectView(_ view: UIView) {
-        view.backgroundColor = drawingColor
-    }
-}
-
-struct Project: Identifiable {
-    var id = UUID()
-    
-    let creationDate: Date
-    let lastUpdateDate: Date
-    
-    let width: Int
-    let layers: [Bitmap]
-    
-    init?(obj: ProjectObject) {
-        guard let id = obj.value(forKey: "id") as? UUID,
-              let width = obj.value(forKey: "width") as? Int,
-              let creationDate = obj.value(forKey: "creationDate") as? Date,
-              let lastUpdateDate = obj.value(forKey: "lastUpdateDate") as? Date,
-              let layers = obj.value(forKey: "bitmaps") as? [BitmapObject]
-        else { return nil }
-        
-        self.id = id
-        self.width = width
-        self.creationDate = creationDate
-        self.lastUpdateDate = lastUpdateDate
-        
-        let converted = layers.compactMap(Bitmap.init)
-        self.layers = converted
-//        self.pixels = try! JSONDecoder().decode([Color].self, from: data)
-//        self.palette = Array(Set(pixels))
-    }
-}
+//
+//protocol ColoringDelegate: AnyObject {
+//    var drawingColor: UIColor { get }
+//}
+//
+//extension ColoringDelegate {
+//    func didSelectView(_ view: UIView) {
+//        view.backgroundColor = drawingColor
+//    }
+//}
 
 struct Bitmap: Codable, Identifiable {
     
     var id = UUID()
     
+    var name = "Unnamed"
+    var creationDate = Date()
+    var lastUpdatedDate = Date()
+    
     let width: Int
+    
+    var zIndex: Int
+    
     var pixels: [Color]
     
     var palette: [Color] = []
+    
+    var isHidden = false
     
     var height: Int {
         pixels.count / width
     }
     
+    
     var data: Data {
         Data(bytes: pixels, count: height * width * MemoryLayout<Color>.stride)
     }
     
-    init?(obj: BitmapObject) {
-        guard let id = obj.value(forKey: "id") as? UUID,
-              let width = obj.value(forKey: "width") as? Int,
-              let data = obj.value(forKey: "pixels") as? Data
+    init?(object: BitmapObject) {
+        guard let id = object.value(forKey: "id") as? UUID,
+              let width = object.value(forKey: "width") as? Int,
+              let zIndex = object.value(forKey: "zIndex") as? Int,
+
+              let data = object.value(forKey: "pixels") as? Data,
+              let name = object.value(forKey: "name") as? String,
+              let creationDate = object.value(forKey: "creationDate") as? Date,
+              let lastUpdatedDate = object.value(forKey: "lastUpdateDate") as? Date,
+              let isHidden = object.value(forKey: "isHidden") as? Bool
         else { return nil }
         
         self.id = id
         self.width = width
+        self.zIndex = zIndex
+        self.name = name
+        self.isHidden = isHidden
+        self.creationDate = creationDate
+        self.lastUpdatedDate = lastUpdatedDate
         self.pixels = try! JSONDecoder().decode([Color].self, from: data)
         self.palette = Array(Set(pixels))
     }
-    
-    init(id: UUID, width: Int, data: Data) {
+
+    init(id: UUID = UUID(), name: String = "Unnamed", width: Int, zIndex: Int = 0, creationDate: Date = Date(), lastUpdatedDate: Date = Date(), pixels: [Color]) {
         self.id = id
         self.width = width
-        self.pixels = try! JSONDecoder().decode([Color].self, from: data)
-        self.palette = Array(Set(pixels))
-    }
-    
-    init(id: UUID = UUID(), width: Int, pixels: [Color]) {
-        self.id = id
-        self.width = width
+        self.name = name
         self.pixels = pixels
+        self.zIndex = 0
         self.palette = Array(Set(pixels))
     }
-    
-//    init(width: Int, pixels: [Color]) {
-//        self.width = width
-//        self.pixels = pixels
-//        self.palette = Array(Set(pixels))
-//    }
-    
-//    init(width: Int, height: Int, color: Color) {
-//        self.width = width
-//        pixels = Array(repeating: color, count: width * height)
-//        self.palette = Array(Set(pixels))
-//
-//    }
     
     init(width: Int, binary: [Int], stroke: Color = .white, fill: Color = .clear) {
         self.width = width
+        self.zIndex = 0
         self.pixels = binary.map { $0 == 1 ? stroke : fill }
         self.palette = Array(Set(pixels))
     }
@@ -125,7 +100,6 @@ extension Bitmap {
         let right = newBitmap.width + x > width ? newBitmap.width + x - width : 0
         let cropped = newBitmap.cropped(top: top, bottom: bottom, left: left, right: right)
 
-        print(cropped)
         let originalX = x < 0 ? 0 : x
         var x = originalX
         var y = y < 0 ? 0 : y
@@ -221,40 +195,20 @@ extension Bitmap {
 
 extension Bitmap {
     
-//    func prettyPrint() {
-//        pixels.enumerated().forEach { index, element in
-//
-//            if index % width == 0 {
-//                print("\n")
-//            }
-//            print(element)
-//        }
-//    }
-    
-
-}
-extension Bitmap {
-    
     static func transparencyIndicator(of width: Int, height: Int) -> Bitmap {
-        let isEven = width % 2 == 0
-        let width = width * 3
-        let height = height * 3
-//        let width = min(isEven ? 16 : 15, width * 3)
-//        let height = min(isEven ? 16: 15, height * 3)
+//        let isEven = width % 2 == 0
+        let width = width * 2
+        let height = height * 2
         
         let white = Color.white
         let gray = Color(r: 222, g: 222, b: 222)
         
-//        let primary = Color(uiColor: .white)
-//        let secondary = Color(uiColor: .lightGray)
-        
         let pixelCount = width * height
         
         let pixels: [Color] = (0...(pixelCount)).map { i in
-            if isEven && (i / width) % 2 == 0 {
+            if (i / width) % 2 == 0 {
                 return i % 2 == 0 ? white : gray
             }
-            
             return i % 2 == 0 ? gray : white
         }
         
@@ -275,7 +229,12 @@ extension Bitmap {
     }
     
     func withChanges(newColor: Color, at indexes: [Int]) -> Bitmap {
-         Bitmap(width: self.width, pixels: updatedColors(with: newColor, at: indexes))
+        Bitmap(id: id,
+               name: name,
+               width: width,
+               creationDate: creationDate,
+               lastUpdatedDate: lastUpdatedDate,
+               pixels: updatedColors(with: newColor, at: indexes))
     }
 }
 

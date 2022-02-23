@@ -8,7 +8,6 @@
 import UIKit
 import CoreData
 
-
 final class BitmapsCollectionViewController: UIViewController, NSFetchedResultsControllerDelegate {
 
     private var collectionView: UICollectionView!
@@ -21,14 +20,6 @@ final class BitmapsCollectionViewController: UIViewController, NSFetchedResultsC
         
     }
     
-    init() {
-        super.init(nibName: nil, bundle: nil)
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -59,6 +50,7 @@ final class BitmapsCollectionViewController: UIViewController, NSFetchedResultsC
     private func loadData() {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
         let context = appDelegate.persistentContainer.viewContext
+//        let context = persistentContainer.viewContext
 
         let request = BitmapObject.fetchRequest()
         let sort = NSSortDescriptor(key: "id", ascending: false)
@@ -74,6 +66,11 @@ final class BitmapsCollectionViewController: UIViewController, NSFetchedResultsC
         } catch {
             print("Fetch failed")
         }
+//        if projs.count == 1 {
+//        let new = Project(creationDate: Date(), lastUpdateDate: Date(), width: 12, layers: [Bitmap.transparencyIndicator(of: 4, height: 4)])
+//            Storage.saveProject(new)
+//        }
+//        let projs = Storage().fetchProjects()
     }
     
     override func viewWillLayoutSubviews() {
@@ -110,7 +107,7 @@ extension BitmapsCollectionViewController: UICollectionViewDataSource {
         
         let bitmapObj = fetchedResultsController.object(at: indexPath)
         
-        if let bitmap = Bitmap(obj: bitmapObj) {
+        if let bitmap = Bitmap(object: bitmapObj) {
             cell.setBitmap(bitmap)
         }
     }
@@ -124,7 +121,7 @@ extension BitmapsCollectionViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let bitmapObj = fetchedResultsController.sections![indexPath.section].objects![indexPath.row] as! BitmapObject
-        if let bitmap = Bitmap(obj: bitmapObj) {
+        if let bitmap = Bitmap(object: bitmapObj) {
             didSelect(bitmap)
         }
     }
@@ -134,7 +131,8 @@ extension BitmapsCollectionViewController: UICollectionViewDelegate {
             UIMenu(title: "", children: [UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: .destructive) { _ in
                 guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
                 let context = appDelegate.persistentContainer.viewContext
-    
+//                let context = persistentContainer.viewContext
+
                 let layer = self.fetchedResultsController.object(at: indexPath)
                 context.delete(layer)
                 
