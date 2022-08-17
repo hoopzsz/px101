@@ -11,6 +11,8 @@ struct Project: Identifiable {
     
     var id = UUID()
     
+    var name: String = "Unnamed"
+    
     /// The width of all the layers
     let width: Int
     
@@ -25,38 +27,6 @@ struct Project: Identifiable {
     
     /// When the project was last updated
     var lastUpdateDate: Date
-}
-
-//extension Project {
-//    
-//    init(id: UUID, width: Int, height: Int, layers: [Bitmap], creationDate: Date, lastUpdateDate: Date) {
-//        self.id = id
-//        self.width = width
-//        self.height = height
-//        self.layers = layers
-//        self.creationDate = creationDate
-//        self.lastUpdateDate = lastUpdateDate
-//    }
-//}
-
-extension Project {
-    
-    var combinedBitmap: Bitmap? {
-        guard layers.count > 0 else { return nil }
-        
-        var layers = layers
-        var first = layers.removeFirst()
-        
-        for layer in layers {
-            for (index, pixel) in layer.pixels.enumerated() {
-                if pixel != .clear {
-                    first.pixels[index] = pixel
-                }
-            }
-        }
-        
-        return first
-    }
 }
 
 extension Project {
@@ -80,5 +50,38 @@ extension Project {
         let converted = layers.compactMap(Bitmap.init)
         
         self.layers = converted
+    }
+}
+
+
+//extension Project {
+//    
+//    init(id: UUID, width: Int, height: Int, layers: [Bitmap], creationDate: Date, lastUpdateDate: Date) {
+//        self.id = id
+//        self.width = width
+//        self.height = height
+//        self.layers = layers
+//        self.creationDate = creationDate
+//        self.lastUpdateDate = lastUpdateDate
+//    }
+//}
+
+extension Project {
+    
+    var combinedBitmap: Bitmap? {
+        guard layers.count > 0 else { return nil }
+        
+        var layers = layers.sorted { $0.zIndex < $1.zIndex }
+        var first = layers.removeFirst()
+        
+        for layer in layers {
+            for (index, pixel) in layer.pixels.enumerated() {
+                if pixel != .clear {
+                    first.pixels[index] = pixel
+                }
+            }
+        }
+        
+        return first
     }
 }

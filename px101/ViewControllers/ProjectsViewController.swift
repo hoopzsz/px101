@@ -87,9 +87,12 @@ final class ProjectViewController: UIViewController, NSFetchedResultsControllerD
         addChild(collectionView)
         collectionView.didMove(toParent: self)
         
-        collectionView.didSelect = { project in
-            let viewController = CanvasViewController(project: project)
-            self.navigationController?.pushViewController(viewController, animated: true)
+        collectionView.didSelect = { projectObject in
+            if let id = projectObject.id, let project = CoreDataStorage.load(project: id) {
+                let bitmaps = CoreDataStorage.loadAllBitmaps(project: id)
+                let viewController = CanvasViewController(project: project, bitmaps: bitmaps)
+                self.navigationController?.pushViewController(viewController, animated: true)
+            }
         }
     }
 }
@@ -102,7 +105,7 @@ final class ProjectCollectionViewController: UIViewController, NSFetchedResultsC
     private var fetchedResultsController: NSFetchedResultsController<ProjectObject>!
     private var layerPredicate: NSPredicate? = nil
     
-    var didSelect: (Project) -> () = { project in
+    var didSelect: (ProjectObject) -> () = { project in
 
     }
     
@@ -185,9 +188,9 @@ extension ProjectCollectionViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let projectpObj = fetchedResultsController.sections![indexPath.section].objects![indexPath.row] as! ProjectObject
-        if let project = Project(object: projectpObj) {
-            didSelect(project)
-        }
+//        if let project = Project(object: projectpObj) {
+            didSelect(projectpObj)
+//        }
     }
     
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {

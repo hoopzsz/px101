@@ -12,30 +12,6 @@ struct PaletteViewModel {
     var colors: [UIColor]
 }
 
-//struct Palette: Codable {
-//    var colors: [Color]
-//}
-
-////extension Palette {
-//    static let `default`: [Color] = [
-//        .black,
-//        .gray,
-//        .white,
-//        .red,
-//        .orange,
-//        .yellow,
-////        .yellowGreen,
-//        .green,
-////        .blueGreen,
-////        .skyBlue,
-//        .lightBlue,
-//        .blue,
-//        .purple,
-////        .pink,
-//        .magenta,
-//    ]
-////}
-
 protocol PaletteDelegate: AnyObject {
     func didSelectColor(_ color: Color)
     func didPressPlusButton()

@@ -33,3 +33,18 @@ extension BitmapObject {
 extension BitmapObject : Identifiable {
 
 }
+
+extension BitmapObject {
+    
+    func update(with bitmap: Bitmap) {
+        id = bitmap.id
+        name = bitmap.name
+        width = Int16(bitmap.width)
+        zIndex = Int16(bitmap.zIndex)
+        isHidden = bitmap.isHidden
+        creationDate = bitmap.creationDate
+        lastUpdateDate = bitmap.lastUpdateDate
+        pixels = try! JSONEncoder().encode(bitmap.pixels)
+        // TODO palette
+    }
+}

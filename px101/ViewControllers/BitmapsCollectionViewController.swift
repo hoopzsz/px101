@@ -32,7 +32,6 @@ final class BitmapsCollectionViewController: UIViewController, NSFetchedResultsC
         layout.sectionInset = UIEdgeInsets(top: 20, left: 0, bottom: 10, right: 0)
         layout.itemSize = CGSize(width: view.frame.width / 3, height: view.frame.width / 3)
 
-
         collectionView = UICollectionView(frame: view.frame, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
         collectionView.dataSource = self

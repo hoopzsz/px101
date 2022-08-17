@@ -181,10 +181,11 @@ final class NewProjectViewController: UIViewController {
         let colors = Array(repeating: Color.clear, count: Int(width * height))
         let bitmap = Bitmap(width: Int(width), pixels: colors)
         let project = Project(width: bitmap.width, height: bitmap.height, layers: [bitmap], creationDate: Date(), lastUpdateDate: Date())
-        Storage.saveBitmap(bitmap, project: project)
-        Storage.saveProject(project)
-
-        let viewController = CanvasViewController(project: project)
+        CoreDataStorage.save(project: project)
+        CoreDataStorage.save(bitmap: bitmap)
+        CoreDataStorage.save(bitmap: bitmap.id, with: project.id)
+        
+        let viewController = CanvasViewController(project: project, bitmaps: [bitmap])
         navigationController?.pushViewController(viewController, animated: true)
     }
 }

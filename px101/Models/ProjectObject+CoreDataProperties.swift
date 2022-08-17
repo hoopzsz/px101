@@ -9,7 +9,6 @@
 import Foundation
 import CoreData
 
-
 extension ProjectObject {
 
     @nonobjc public class func fetchRequest() -> NSFetchRequest<ProjectObject> {
@@ -48,5 +47,19 @@ extension ProjectObject : Identifiable {
 
     func setBitmaps(_ bitmaps: [BitmapObject]) {
         self.bitmaps = NSSet(array: bitmaps)
+    }
+}
+
+extension ProjectObject {
+    
+    func update(with project: Project) {
+        id = project.id
+        name = project.name
+        width = Int16(project.width)
+        height = Int16(project.height)
+        creationDate = project.creationDate
+        lastUpdateDate = project.lastUpdateDate
+        
+        // TODO palette
     }
 }

@@ -7,10 +7,10 @@
 
 import UIKit
 
-protocol ColorSelectionDelegate: AnyObject {
-    func didChangeColors(_ strokeColor: UIColor, _ fillColor: UIColor)
-}
-
+//protocol ColorSelectionDelegate: AnyObject {
+//    func didChangeColors(_ strokeColor: UIColor, _ fillColor: UIColor)
+//}
+/*
 final class ColorSelectionView: UIView {
     
     weak var delegate: ColorSelectionDelegate? = nil
@@ -63,3 +63,4 @@ final class ColorSelectionView: UIView {
         delegate?.didChangeColors(strokeColor, fillColor)
     }
 }
+*/

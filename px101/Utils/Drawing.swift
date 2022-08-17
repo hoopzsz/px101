@@ -33,6 +33,10 @@ private func direction(from a: Int, to b: Int, width: Int) -> GestureDirection {
     }
 }
 
+func line(from: Point, to: Point) -> [Point] {
+    drawLine(x1: from.0, y1: from.1, x2: to.0, y2: to.1)
+}
+
 func lineIndexSet(firstIndex: Int, secondIndex: Int, arrayWidth: Int) -> [Int] {
     let point1x = firstIndex % arrayWidth
     let point1y = firstIndex / arrayWidth

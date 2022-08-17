@@ -6,16 +6,6 @@
 //
 
 import UIKit
-//
-//protocol ColoringDelegate: AnyObject {
-//    var drawingColor: UIColor { get }
-//}
-//
-//extension ColoringDelegate {
-//    func didSelectView(_ view: UIView) {
-//        view.backgroundColor = drawingColor
-//    }
-//}
 
 struct Bitmap: Codable, Identifiable {
     
@@ -23,7 +13,7 @@ struct Bitmap: Codable, Identifiable {
     
     var name = "Unnamed"
     var creationDate = Date()
-    var lastUpdatedDate = Date()
+    var lastUpdateDate = Date()
     
     let width: Int
     
@@ -31,14 +21,15 @@ struct Bitmap: Codable, Identifiable {
     
     var pixels: [Color]
     
-    var palette: [Color] = []
+    var palette: [Color] {
+        Array(Set(pixels)).filter { $0 != .clear }
+    }
     
     var isHidden = false
     
     var height: Int {
         pixels.count / width
     }
-    
     
     var data: Data {
         Data(bytes: pixels, count: height * width * MemoryLayout<Color>.stride)
@@ -48,7 +39,6 @@ struct Bitmap: Codable, Identifiable {
         guard let id = object.value(forKey: "id") as? UUID,
               let width = object.value(forKey: "width") as? Int,
               let zIndex = object.value(forKey: "zIndex") as? Int,
-
               let data = object.value(forKey: "pixels") as? Data,
               let name = object.value(forKey: "name") as? String,
               let creationDate = object.value(forKey: "creationDate") as? Date,
@@ -62,9 +52,8 @@ struct Bitmap: Codable, Identifiable {
         self.name = name
         self.isHidden = isHidden
         self.creationDate = creationDate
-        self.lastUpdatedDate = lastUpdatedDate
+        self.lastUpdateDate = lastUpdatedDate
         self.pixels = try! JSONDecoder().decode([Color].self, from: data)
-        self.palette = Array(Set(pixels))
     }
 
     init(id: UUID = UUID(), name: String = "Unnamed", width: Int, zIndex: Int = 0, creationDate: Date = Date(), lastUpdatedDate: Date = Date(), pixels: [Color]) {
@@ -72,15 +61,13 @@ struct Bitmap: Codable, Identifiable {
         self.width = width
         self.name = name
         self.pixels = pixels
-        self.zIndex = 0
-        self.palette = Array(Set(pixels))
+        self.zIndex = zIndex
     }
     
     init(width: Int, binary: [Int], stroke: Color = .white, fill: Color = .clear) {
         self.width = width
         self.zIndex = 0
         self.pixels = binary.map { $0 == 1 ? stroke : fill }
-        self.palette = Array(Set(pixels))
     }
 
     subscript(x: Int, y: Int) -> Color {
@@ -163,7 +150,7 @@ extension Bitmap {
             r += 1
         }
 
-        return Bitmap(id: copy.id, width: width, pixels: copy.pixels)
+        return Bitmap(id: copy.id, width: width, zIndex: zIndex, pixels: copy.pixels)
     }
     
     func scaled(_ scale: Int) -> Bitmap {
@@ -189,14 +176,13 @@ extension Bitmap {
 
         
 
-        return Bitmap(id: id, width: width, pixels: pixels)
+        return Bitmap(id: id, width: width, zIndex: 0, pixels: pixels)
     }
 }
 
 extension Bitmap {
     
     static func transparencyIndicator(of width: Int, height: Int) -> Bitmap {
-//        let isEven = width % 2 == 0
         let width = width * 2
         let height = height * 2
         
@@ -212,7 +198,7 @@ extension Bitmap {
             return i % 2 == 0 ? gray : white
         }
         
-        return Bitmap(width: width, pixels: pixels)
+        return Bitmap(width: width, zIndex: 0, pixels: pixels)
     }
 }
 
@@ -232,8 +218,9 @@ extension Bitmap {
         Bitmap(id: id,
                name: name,
                width: width,
+               zIndex: zIndex,
                creationDate: creationDate,
-               lastUpdatedDate: lastUpdatedDate,
+               lastUpdatedDate: lastUpdateDate,
                pixels: updatedColors(with: newColor, at: indexes))
     }
 }
@@ -251,7 +238,7 @@ extension Bitmap {
 extension Bitmap {
     /// Improves the readibility of assembling together multiple bitmaps into textual repressentations
     static var initial: Bitmap {
-        Bitmap(width: 0, pixels: [])
+        Bitmap(width: 0, zIndex: 0, pixels: [])
     }
 }
 
@@ -272,7 +259,6 @@ extension Bitmap {
                 colorOccuranceDictionary[pixel] = value + 1
             }
         }
-
         if let (color, _) = colorOccuranceDictionary.max(by: {$0.1 < $1.1}) {
             bgColor = color
         }
